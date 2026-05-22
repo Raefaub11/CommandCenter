@@ -1,0 +1,3030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rae's Command">
+<meta name="theme-color" content="#0a0a0b">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<title>Rae's Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   GLOBAL SHELL
+   ═══════════════════════════════════════════════════════ */
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { font-size: 16px; -webkit-text-size-adjust: 100%; }
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --tab-height: 62px;
+  --tab-total: calc(var(--tab-height) + var(--safe-bottom));
+}
+body {
+  background: #0a0a0b;
+  color: #f0ede8;
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* page system */
+.page {
+  display: none;
+  min-height: 100vh;
+  padding-bottom: var(--tab-total);
+}
+.page.active { display: block; }
+
+/* ═══════════════════════════════════════════════════════
+   TAB BAR
+   ═══════════════════════════════════════════════════════ */
+.tab-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: var(--tab-total);
+  padding-bottom: var(--safe-bottom);
+  background: rgba(10, 10, 11, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid #2a2a35;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  z-index: 1000;
+}
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: #5a5a68;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  padding: 8px 2px;
+  transition: color 0.15s ease;
+  position: relative;
+}
+.tab-btn svg {
+  width: 22px; height: 22px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.tab-btn.active { color: #5ecfcf; }
+.tab-btn.active[data-page="stack"]    { color: #5ecfcf; }
+.tab-btn.active[data-page="protocol"] { color: #5ecfcf; }
+.tab-btn.active[data-page="tirz"]     { color: #9b6fc4; }
+.tab-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 30%; right: 30%;
+  height: 2px;
+  background: currentColor;
+  border-radius: 0 0 2px 2px;
+}
+.tab-btn:active { background: rgba(255,255,255,0.03); }
+
+/* ═══════════════════════════════════════════════════════
+   HOME / DASHBOARD
+   ═══════════════════════════════════════════════════════ */
+#page-home {
+  background: #0a0a0b;
+  font-family: 'DM Sans', sans-serif;
+  padding-top: var(--safe-top);
+}
+#page-home::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(201,168,76,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(74,144,217,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+.home-wrap {
+  position: relative;
+  z-index: 1;
+  padding: 28px 18px 28px;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+/* Greeting */
+.home-greeting {
+  margin-bottom: 22px;
+  position: relative;
+  overflow: hidden;
+}
+.home-greeting::before {
+  content: 'COMMAND';
+  position: absolute;
+  right: 0; top: 2px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 56px;
+  color: rgba(94,207,207,0.05);
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  line-height: 1;
+  z-index: 0;
+}
+.home-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #5ecfcf;
+  margin-bottom: 6px;
+  position: relative;
+  z-index: 1;
+}
+.home-hi {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(34px, 9vw, 46px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: #f0ede8;
+  margin-bottom: 8px;
+  position: relative;
+  z-index: 1;
+}
+.home-hi span {
+  background: linear-gradient(135deg, #5ecfcf, #9b6fc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.home-date {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #8a8780;
+  letter-spacing: 0.05em;
+  position: relative;
+  z-index: 1;
+}
+
+/* Today Score Hero */
+.score-card {
+  background: linear-gradient(135deg, #141418 0%, #1a1a20 100%);
+  border: 1px solid #2a2a35;
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.score-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #5ecfcf, #9b6fc4, #ff4d94);
+}
+.score-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.score-cell { text-align: center; }
+.score-cell-num {
+  font-family: 'Syne', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.score-cell-num.gold { color: #bef264; }
+.score-cell-num.teal { color: #5ecfcf; }
+.score-cell-num.purple { color: #c4a0ff; }
+.score-cell-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #6b6b80;
+}
+.score-cell-tiny {
+  font-family: 'Space Mono', monospace;
+  font-size: 7px;
+  color: #5a5a70;
+  margin-top: 2px;
+  letter-spacing: 0.06em;
+}
+
+/* Today Cards */
+.today-card {
+  background: #141418;
+  border: 1px solid #2a2a35;
+  border-radius: 14px;
+  padding: 16px 16px 14px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.today-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 3px;
+}
+.today-card.habits::before { background: #38bdf8; }
+.today-card.stack::before { background: #5ecfcf; }
+.today-card.protocol::before { background: #9b6fd4; }
+
+.tc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.tc-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.today-card.habits .tc-title { color: #bef264; }
+.today-card.stack .tc-title { color: #5ecfcf; }
+.today-card.protocol .tc-title { color: #c4a0ff; }
+.tc-meta {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #6b6b80;
+  letter-spacing: 0.05em;
+}
+.tc-jump {
+  background: transparent;
+  border: 1px solid #2a2a35;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #6b6b80;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.tc-jump:hover { color: #f0ede8; border-color: #444; }
+.tc-jump:active { background: #1a1a20; }
+
+/* Habit checks on dashboard */
+.tc-habit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tc-habit-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: #1a1a20;
+  border: 1px solid #232228;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.tc-habit-row:active { transform: scale(0.985); }
+.tc-habit-row.done {
+  background: rgba(201,168,76,0.06);
+  border-color: rgba(201,168,76,0.2);
+}
+.tc-habit-row.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.tc-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid #444;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.tc-habit-row.done .tc-check {
+  background: #5ecfcf;
+  border-color: #5ecfcf;
+}
+.tc-check svg {
+  display: none;
+  width: 10px; height: 10px;
+}
+.tc-habit-row.done .tc-check svg { display: block; }
+.tc-habit-emoji { font-size: 14px; line-height: 1; }
+.tc-habit-name {
+  flex: 1;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #c0bcb4;
+  letter-spacing: 0.02em;
+}
+.tc-habit-row.done .tc-habit-name { color: #f0ede8; }
+.tc-habit-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5a5a68;
+}
+
+/* Stack injection on dashboard */
+.tc-shot-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tc-shot-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: #1a1a20;
+  border: 1px solid #232228;
+  border-radius: 8px;
+}
+.tc-shot-pill {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 4px 8px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+.tc-shot-pill.tirz { background: rgba(155,111,196,0.18); color: #9b6fc4; }
+.tc-shot-pill.tesa { background: rgba(94,207,207,0.18); color: #5ecfcf; }
+.tc-shot-pill.lipo { background: rgba(255,77,148,0.18); color: #ff4d94; }
+.tc-shot-pill.cjc  { background: rgba(232,128,74,0.18); color: #e8804a; }
+.tc-shot-info { flex: 1; }
+.tc-shot-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #f0ede8;
+  margin-bottom: 2px;
+}
+.tc-shot-dose {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #6b6b80;
+}
+.tc-shot-site {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  color: #5ecfcf;
+  letter-spacing: 0.04em;
+}
+.tc-shot-empty {
+  text-align: center;
+  padding: 18px 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: #6b6b80;
+  letter-spacing: 0.05em;
+}
+.tc-shot-empty .em {
+  font-size: 22px;
+  display: block;
+  margin-bottom: 6px;
+  opacity: 0.5;
+}
+.tc-shot-toggle {
+  background: transparent;
+  border: 1px solid #2a2a35;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6b6b80;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+.tc-shot-toggle.done {
+  background: rgba(94,207,207,0.1);
+  border-color: rgba(94,207,207,0.3);
+  color: #5ecfcf;
+}
+
+/* Protocol on dashboard */
+.tc-phase-banner {
+  background: linear-gradient(135deg, rgba(201,168,76,0.08), rgba(155,111,212,0.04));
+  border: 1px solid rgba(201,168,76,0.18);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+}
+.tc-phase-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #c4a0ff;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.tc-phase-meta {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  color: #8a8780;
+  letter-spacing: 0.05em;
+}
+.tc-phase-progress {
+  margin-top: 10px;
+  height: 4px;
+  background: #1a1a20;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.tc-phase-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5ecfcf, #9b6fc4);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.tc-reminder {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  margin-bottom: 6px;
+}
+.tc-reminder.new {
+  background: rgba(155,111,212,0.06);
+  border: 1px solid rgba(155,111,212,0.2);
+}
+.tc-reminder.routine {
+  background: #1a1a20;
+  border: 1px solid #232228;
+}
+.tc-reminder-icon { font-size: 14px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+.tc-reminder-body { flex: 1; }
+.tc-reminder-name {
+  font-family: 'DM Mono', monospace;
+  font-size: 11px;
+  color: #f0ede8;
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.tc-reminder-detail {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: #8a8780;
+  line-height: 1.4;
+}
+.tc-reminder-tag {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+  background: rgba(155,111,212,0.18);
+  color: #c4a0ff;
+}
+
+
+/* ═══════════════════════════════════════════════════════
+   STACK PAGE (peptide tracker / site rotation)
+   ═══════════════════════════════════════════════════════ */
+#page-stack {
+  --bg: #0d0d0f;
+  --bg2: #141418;
+  --bg3: #1a1a20;
+  --border: #2a2a35;
+  --border2: #333340;
+  --text: #e8e8f0;
+  --muted: #6b6b80;
+  --muted2: #4a4a58;
+  --tirz: #9b6fc4;
+  --tirz-dim: rgba(155,111,196,0.18);
+  --tirz-solid: #9b6fc4;
+  --tesa: #5ecfcf;
+  --tesa-dim: rgba(94,207,207,0.15);
+  --tesa-solid: #5ecfcf;
+  --lipo: #ff4d94;
+  --lipo-dim: rgba(255,77,148,0.18);
+  --lipo-solid: #ff4d94;
+  --cjc: #e8804a;
+  --cjc-dim: rgba(232,128,74,0.18);
+  --cjc-solid: #e8804a;
+  --today-glow: rgba(255,255,255,0.08);
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Mono', monospace;
+  padding-top: var(--safe-top);
+}
+
+#page-stack .stack-save-dot {
+  position: fixed;
+  top: calc(10px + var(--safe-top)); right: 14px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--tesa); opacity: 0; transition: opacity 0.3s; z-index: 999;
+}
+#page-stack .stack-save-dot.show { opacity: 1; }
+#page-stack .header { padding: 28px 20px 24px; text-align: center; position: relative; overflow: hidden; }
+#page-stack .header::before {
+  content: 'TRACKER';
+  position: absolute;
+  left: 0; right: 0;
+  top: 38px;
+  text-align: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 52px;
+  color: rgba(94,207,207,0.05);
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  line-height: 1;
+  z-index: 0;
+}
+#page-stack .header::after {
+  content: ''; position: absolute; bottom: 0; left: 10%; right: 10%;
+  height: 1px; background: linear-gradient(90deg, transparent, var(--border2), transparent);
+  z-index: 0;
+}
+#page-stack .eyebrow {
+  font-size: 10px; font-weight: 500; letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 8px;
+  position: relative; z-index: 1;
+}
+#page-stack .title {
+  font-family: 'Syne', sans-serif; font-size: clamp(22px, 6vw, 38px);
+  font-weight: 800; letter-spacing: -0.02em; color: var(--text);
+  line-height: 1.1; margin-bottom: 8px;
+  position: relative; z-index: 1;
+}
+#page-stack .subtitle {
+  font-size: 11px; color: var(--muted); letter-spacing: 0.05em;
+  position: relative; z-index: 1;
+}
+#page-stack .progress-wrap { padding: 20px 20px 0; }
+#page-stack .progress-header {
+  display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;
+}
+#page-stack .progress-label {
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+}
+#page-stack .progress-count { font-size: 11px; color: var(--muted); }
+#page-stack .progress-track {
+  height: 4px; background: var(--bg3); border-radius: 2px; overflow: hidden;
+  border: 1px solid var(--border);
+}
+#page-stack .progress-fill {
+  height: 100%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--tirz), var(--tesa), var(--lipo));
+  transition: width 0.4s ease; width: 0%;
+}
+#page-stack .legend {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; padding: 20px 20px 0;
+}
+#page-stack .legend-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 12px; position: relative; overflow: hidden;
+}
+#page-stack .legend-card::before {
+  content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 3px;
+}
+#page-stack .legend-card.tirz::before { background: var(--tirz); }
+#page-stack .legend-card.tesa::before { background: var(--tesa); }
+#page-stack .legend-card.lipo::before { background: var(--lipo); }
+#page-stack .legend-name {
+  font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.05em; margin-bottom: 3px;
+}
+#page-stack .legend-card.tirz .legend-name { color: var(--tirz); }
+#page-stack .legend-card.tesa .legend-name { color: var(--tesa); }
+#page-stack .legend-card.lipo .legend-name { color: var(--lipo); }
+#page-stack .legend-meta { font-size: 9px; color: var(--muted); line-height: 1.5; }
+#page-stack .cal-wrap { padding: 20px 12px 0; }
+#page-stack .dow-header {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 6px;
+}
+#page-stack .dow-label {
+  text-align: center; font-size: 9px; font-weight: 500; letter-spacing: 0.12em;
+  color: var(--muted2); padding: 4px 0;
+}
+#page-stack .week-group { margin-bottom: 12px; }
+#page-stack .week-label {
+  font-size: 8px; letter-spacing: 0.15em; color: var(--muted2);
+  text-transform: uppercase; margin-bottom: 4px; padding-left: 2px;
+}
+#page-stack .week-label.current { color: var(--tesa); font-weight: 700; }
+#page-stack .week-row { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+#page-stack .day-cell {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 7px;
+  padding: 6px 3px 5px; min-height: 72px; position: relative; cursor: pointer;
+  transition: opacity 0.25s ease, border-color 0.2s ease;
+}
+#page-stack .day-cell:active { transform: scale(0.97); }
+#page-stack .day-cell.empty {
+  background: transparent; border-color: transparent; cursor: default; pointer-events: none;
+}
+#page-stack .day-cell.past { opacity: 0.55; }
+#page-stack .day-cell.is-today {
+  border-color: rgba(255,255,255,0.3);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08), inset 0 0 20px var(--today-glow);
+  opacity: 1;
+}
+#page-stack .day-cell.done { opacity: 0.28; }
+#page-stack .day-cell.done .check-overlay { display: flex; }
+#page-stack .day-cell.tirz-day {
+  background: rgba(155,111,196,0.12);
+  border-color: rgba(155,111,196,0.5);
+}
+#page-stack .day-cell.washout {
+  background: rgba(112,112,160,0.05);
+  border: 1px dashed rgba(112,112,160,0.4);
+}
+#page-stack .day-cell.cjc-day {
+  background: rgba(232,128,74,0.1);
+  border-color: rgba(232,128,74,0.45);
+}
+#page-stack .day-cell.cjc-day.tirz-day {
+  background: rgba(232,128,74,0.1);
+  border-color: rgba(155,111,196,0.55);
+}
+#page-stack .day-num {
+  font-size: 8px; font-weight: 700; color: var(--text); margin-bottom: 2px;
+  line-height: 1; padding-left: 1px; letter-spacing: 0;
+  white-space: nowrap; font-family: 'Space Mono', monospace;
+}
+#page-stack .day-cell.past .day-num { color: var(--muted); }
+#page-stack .day-cell.is-today .day-num { color: var(--tesa); }
+#page-stack .day-counter {
+  font-size: 7px; color: var(--tesa); opacity: 0.75;
+  font-family: 'Space Mono', monospace; margin-bottom: 4px;
+  line-height: 1; padding-left: 1px;
+}
+#page-stack .day-cell.cjc-day .day-counter { color: #e8804a; }
+#page-stack .day-cell.washout .day-counter { color: var(--muted); }
+#page-stack .pills { display: flex; flex-direction: column; gap: 2px; }
+#page-stack .pill {
+  display: flex; align-items: center; justify-content: space-between;
+  border-radius: 3px; padding: 2px 4px; font-size: 7.5px; font-weight: 700;
+  letter-spacing: 0.03em; line-height: 1.6;
+  font-family: 'Space Mono', monospace;
+}
+#page-stack .pill.tirz { background: var(--tirz-solid); color: white; }
+#page-stack .pill.tesa { background: var(--tesa-solid); color: #0a0a0f; }
+#page-stack .pill.lipo { background: var(--lipo-solid); color: white; }
+#page-stack .pill.cjc  { background: var(--cjc-solid); color: #0a0a0f; }
+#page-stack .pill-site { opacity: 0.75; font-size: 7px; font-weight: 500; }
+#page-stack .washout-label {
+  font-size: 7px; color: var(--muted); text-align: center;
+  font-style: italic; margin-top: 8px;
+}
+#page-stack .today-tag {
+  position: absolute; bottom: 4px; left: 0; right: 0; text-align: center;
+  font-size: 7px; letter-spacing: 0.1em; color: rgba(255,255,255,0.4); text-transform: uppercase;
+}
+#page-stack .check-overlay {
+  display: none; position: absolute; inset: 0; align-items: center;
+  justify-content: center; font-size: 22px; opacity: 0.6; border-radius: 7px;
+}
+#page-stack .stack-rem-summary {
+  margin: 24px 16px 8px;
+  background: rgba(13,13,15,0.97);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px 14px;
+}
+#page-stack .stack-rem-title {
+  font-family: 'Syne', sans-serif; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted2); margin-bottom: 10px;
+}
+#page-stack .stack-rem-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+#page-stack .stack-rem-item {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 6px;
+  padding: 8px 10px; position: relative; overflow: hidden;
+}
+#page-stack .stack-rem-item::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+#page-stack .stack-rem-item.tirz::before { background: var(--tirz); }
+#page-stack .stack-rem-item.tesa::before { background: var(--tesa); }
+#page-stack .stack-rem-item.lipo::before { background: var(--lipo); }
+#page-stack .stack-rem-compound {
+  font-size: 8px; font-weight: 500; margin-bottom: 3px; letter-spacing: 0.05em;
+}
+#page-stack .stack-rem-item.tirz .stack-rem-compound { color: var(--tirz); }
+#page-stack .stack-rem-item.tesa .stack-rem-compound { color: var(--tesa); }
+#page-stack .stack-rem-item.lipo .stack-rem-compound { color: var(--lipo); }
+#page-stack .stack-rem-inj {
+  font-size: 14px; font-weight: 500; color: var(--text); line-height: 1; margin-bottom: 1px;
+}
+#page-stack .stack-rem-unit { font-size: 8px; color: var(--muted); }
+
+/* ═══════════════════════════════════════════════════════
+   PROTOCOL PAGE (long-term roadmap)
+   ═══════════════════════════════════════════════════════ */
+#page-protocol {
+  --gold: #5ecfcf;
+  --gold-light: #7de4e4;
+  --gold-dim: #4a9e9e;
+  --black: #0A0A0F;
+  --surface: #12121a;
+  --surface2: #1a1a22;
+  --surface3: rgba(94,207,207,0.15);
+  --text: #e8e8f0;
+  --text-dim: #8a8780;
+  --text-muted: #7070a0;
+  --green: #5ecfcf;
+  --blue: #ff4d94;
+  --blue-dim: rgba(255,77,148,0.18);
+  --purple: #9b6fc4;
+  --orange: #e8804a;
+  background: var(--black);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  padding-top: var(--safe-top);
+  position: relative;
+}
+#page-protocol::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(94,207,207,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(155,111,196,0.05) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+#page-protocol .container {
+  max-width: 900px; margin: 0 auto;
+  padding: 30px 20px 24px;
+  position: relative; z-index: 1;
+}
+#page-protocol .header {
+  text-align: center; margin-bottom: 44px; animation: fadeDown 0.8s ease both;
+  position: relative; overflow: hidden;
+}
+#page-protocol .header::before {
+  content: 'PROTOCOL';
+  position: absolute;
+  left: 0; right: 0;
+  top: 42px;
+  text-align: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 46px;
+  color: rgba(155,111,196,0.05);
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  line-height: 1;
+  z-index: 0;
+}
+#page-protocol .header-eyebrow {
+  font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.25em;
+  color: var(--gold); text-transform: uppercase; margin-bottom: 12px;
+  position: relative; z-index: 1;
+}
+#page-protocol .header h1 {
+  font-family: 'Syne', sans-serif; font-size: clamp(32px, 7vw, 56px);
+  font-weight: 800; letter-spacing: -0.02em; line-height: 1; color: var(--text);
+  position: relative; z-index: 1;
+}
+#page-protocol .header h1 span {
+  background: linear-gradient(135deg, #5ecfcf, #9b6fc4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+#page-protocol .header-sub {
+  font-size: 13px; color: var(--text-dim); font-weight: 300; margin-top: 14px;
+  position: relative; z-index: 1;
+}
+#page-protocol .header-divider {
+  width: 60px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  margin: 18px auto 0;
+  position: relative; z-index: 1;
+}
+#page-protocol .section-label {
+  font-family: 'Space Mono', monospace; font-size: 10px; letter-spacing: 0.3em;
+  text-transform: uppercase; color: var(--gold-dim); margin-bottom: 18px;
+  display: flex; align-items: center; gap: 12px;
+}
+#page-protocol .section-label::after {
+  content: ''; flex: 1; height: 1px; background: var(--surface3);
+}
+#page-protocol .current-stack { margin-bottom: 44px; animation: fadeUp 0.8s ease 0.1s both; }
+#page-protocol .compound-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px;
+}
+#page-protocol .compound-card {
+  background: var(--surface); border: 1px solid var(--surface3); border-radius: 12px;
+  padding: 18px; position: relative; overflow: hidden; transition: transform 0.2s ease;
+}
+#page-protocol .compound-card:hover { transform: translateY(-2px); }
+#page-protocol .compound-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+}
+#page-protocol .compound-card.gold::before { background: linear-gradient(90deg, #9b6fc4, #c4a0ff); }
+#page-protocol .compound-card.green::before { background: linear-gradient(90deg, #5ecfcf, #7de4e4); }
+#page-protocol .compound-card.blue::before { background: linear-gradient(90deg, #ff4d94, #ff8fb8); }
+#page-protocol .compound-card.purple::before { background: linear-gradient(90deg, #e8804a, #f5b080); }
+#page-protocol .compound-card.orange::before { background: linear-gradient(90deg, var(--orange), #F5B080); }
+#page-protocol .compound-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 8px; gap: 8px;
+}
+#page-protocol .compound-name {
+  font-family: 'Syne', sans-serif; font-size: 20px; font-weight: 800;
+  letter-spacing: -0.02em; line-height: 1;
+}
+#page-protocol .compound-card.gold .compound-name { color: #c4a0ff; }
+#page-protocol .compound-card.green .compound-name { color: #7de4e4; }
+#page-protocol .compound-card.blue .compound-name { color: #ff8fb8; }
+#page-protocol .compound-card.purple .compound-name { color: #f5b080; }
+#page-protocol .compound-card.orange .compound-name { color: #F5B080; }
+#page-protocol .compound-dose {
+  font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-dim);
+  background: var(--surface2); padding: 3px 8px; border-radius: 4px;
+  white-space: nowrap; flex-shrink: 0;
+}
+#page-protocol .compound-role {
+  font-size: 12px; color: var(--text-dim); font-weight: 300;
+  margin-bottom: 10px; font-style: italic;
+}
+#page-protocol .compound-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 10px; }
+#page-protocol .tag {
+  font-size: 10px; font-family: 'Space Mono', monospace;
+  padding: 3px 8px; border-radius: 4px;
+}
+#page-protocol .tag-gold { background: rgba(155,111,196,0.15); color: #c4a0ff; border: 1px solid rgba(155,111,196,0.3); }
+#page-protocol .tag-green { background: rgba(94,207,207,0.15); color: #5ecfcf; border: 1px solid rgba(94,207,207,0.3); }
+#page-protocol .tag-blue { background: rgba(255,77,148,0.15); color: #ff8fb8; border: 1px solid rgba(255,77,148,0.3); }
+#page-protocol .tag-purple { background: rgba(232,128,74,0.15); color: #f5b080; border: 1px solid rgba(232,128,74,0.3); }
+#page-protocol .tag-orange { background: rgba(232,128,74,0.15); color: #f5b080; border: 1px solid rgba(232,128,74,0.3); }
+#page-protocol .compound-timing {
+  padding-top: 10px; border-top: 1px solid var(--surface3);
+  font-size: 10px; color: var(--text-muted); font-family: 'Space Mono', monospace;
+  display: flex; align-items: flex-start; gap: 6px; flex-direction: column;
+}
+#page-protocol .timing-row { display: flex; align-items: center; gap: 6px; }
+#page-protocol .timing-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+#page-protocol .start-date { color: var(--gold-dim); font-size: 10px; }
+
+#page-protocol .supplements-section { margin-bottom: 44px; animation: fadeUp 0.8s ease 0.2s both; }
+#page-protocol .supp-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px;
+}
+#page-protocol .supp-card {
+  background: var(--surface); border: 1px solid var(--surface3); border-radius: 10px;
+  padding: 14px; display: flex; flex-direction: column; gap: 5px;
+}
+#page-protocol .supp-name { font-size: 13px; font-weight: 600; color: var(--text); }
+#page-protocol .supp-dose { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold); }
+#page-protocol .supp-start { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold-dim); }
+#page-protocol .supp-purpose {
+  font-size: 11px; color: var(--text-muted); font-weight: 300; line-height: 1.4;
+}
+#page-protocol .roadmap-section { margin-bottom: 44px; animation: fadeUp 0.8s ease 0.3s both; }
+#page-protocol .timeline { position: relative; }
+#page-protocol .timeline::before {
+  content: ''; position: absolute; left: 20px; top: 24px; bottom: 24px; width: 1px;
+  background: linear-gradient(180deg, var(--gold), var(--blue), var(--purple), var(--surface3));
+}
+#page-protocol .phase {
+  display: flex; gap: 20px; margin-bottom: 8px; position: relative;
+}
+#page-protocol .phase-marker {
+  width: 40px; height: 40px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-size: 16px; flex-shrink: 0;
+  position: relative; z-index: 1; margin-top: 4px;
+}
+#page-protocol .phase-marker.active {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--black); box-shadow: 0 0 20px rgba(94,207,207,0.4);
+}
+#page-protocol .phase-marker.next {
+  background: var(--blue-dim); color: var(--blue); border: 1px solid var(--blue);
+}
+#page-protocol .phase-marker.future {
+  background: var(--surface2); color: var(--purple); border: 1px solid var(--purple);
+}
+#page-protocol .phase-marker.maintenance {
+  background: var(--surface2); color: var(--text-dim); border: 1px solid var(--surface3);
+}
+#page-protocol .phase-content {
+  flex: 1; background: var(--surface); border: 1px solid var(--surface3);
+  border-radius: 12px; padding: 16px 20px; margin-bottom: 12px;
+}
+#page-protocol .phase-content.active-phase {
+  border-color: rgba(94,207,207,0.3);
+  background: linear-gradient(135deg, var(--surface), rgba(94,207,207,0.04));
+}
+#page-protocol .phase-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px; flex-wrap: wrap; gap: 8px;
+}
+#page-protocol .phase-title {
+  font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: -0.01em;
+}
+#page-protocol .phase-badge {
+  font-family: 'Space Mono', monospace; font-size: 10px; padding: 3px 10px;
+  border-radius: 20px; letter-spacing: 0.1em; text-transform: uppercase;
+}
+#page-protocol .badge-active { background: rgba(94,207,207,0.15); color: var(--gold); border: 1px solid rgba(94,207,207,0.3); }
+#page-protocol .badge-next { background: rgba(255,77,148,0.15); color: var(--blue); border: 1px solid rgba(255,77,148,0.3); }
+#page-protocol .badge-future { background: rgba(155,111,196,0.15); color: var(--purple); border: 1px solid rgba(155,111,196,0.3); }
+#page-protocol .badge-repeat { background: rgba(94,207,207,0.15); color: var(--green); border: 1px solid rgba(94,207,207,0.3); }
+#page-protocol .phase-dates { font-size: 11px; color: var(--gold-dim); font-family: 'Space Mono', monospace; margin-bottom: 8px; }
+#page-protocol .phase-duration { font-size: 11px; color: var(--text-muted); font-family: 'Space Mono', monospace; margin-bottom: 10px; }
+#page-protocol .phase-compounds { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+#page-protocol .phase-tag { font-size: 11px; padding: 4px 10px; border-radius: 6px; font-weight: 500; }
+#page-protocol .phase-goal { font-size: 12px; color: var(--text-dim); font-style: italic; line-height: 1.5; }
+#page-protocol .break-phase { display: flex; gap: 20px; margin-bottom: 8px; }
+#page-protocol .break-marker {
+  width: 40px; height: 40px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center;
+  background: var(--surface2); border: 1px dashed var(--surface3); flex-shrink: 0;
+  margin-top: 4px; position: relative; z-index: 1;
+}
+#page-protocol .break-content {
+  flex: 1; background: var(--surface); border: 1px dashed var(--surface3);
+  border-radius: 12px; padding: 12px 20px; margin-bottom: 12px;
+}
+#page-protocol .break-label { font-size: 12px; color: var(--text-muted); font-style: italic; margin-bottom: 4px; }
+#page-protocol .break-dates { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--gold-dim); margin-bottom: 3px; }
+#page-protocol .break-note { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-muted); }
+
+#page-protocol .rules-section { margin-bottom: 44px; animation: fadeUp 0.8s ease 0.4s both; }
+#page-protocol .rules-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px;
+}
+#page-protocol .rule-card {
+  background: var(--surface); border: 1px solid var(--surface3); border-radius: 10px;
+  padding: 16px; display: flex; gap: 12px; align-items: flex-start;
+}
+#page-protocol .rule-icon {
+  width: 32px; height: 32px; border-radius: 8px; display: flex;
+  align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+  background: var(--surface2);
+}
+#page-protocol .rule-text { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+#page-protocol .rule-text strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 3px; }
+
+#page-protocol .future-section { margin-bottom: 44px; animation: fadeUp 0.8s ease 0.5s both; }
+#page-protocol .future-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;
+}
+#page-protocol .future-card {
+  background: var(--surface); border: 1px solid var(--surface3); border-radius: 10px;
+  padding: 16px; opacity: 0.7; transition: opacity 0.2s;
+}
+#page-protocol .future-card:hover { opacity: 1; }
+#page-protocol .future-name {
+  font-family: 'Syne', sans-serif; font-size: 18px; letter-spacing: 0.05em;
+  color: var(--text-dim); margin-bottom: 6px;
+}
+#page-protocol .future-trigger { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+#page-protocol .future-trigger strong {
+  color: var(--text-dim); font-size: 10px; font-family: 'Space Mono', monospace;
+  text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 4px;
+}
+
+#page-protocol .goal-section { animation: fadeUp 0.8s ease 0.6s both; }
+#page-protocol .goal-card {
+  background: linear-gradient(135deg, var(--surface), rgba(94,207,207,0.03));
+  border: 1px solid rgba(94,207,207,0.2); border-radius: 12px; padding: 22px;
+}
+#page-protocol .goal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 18px; flex-wrap: wrap; gap: 12px;
+}
+#page-protocol .goal-title {
+  font-family: 'Syne', sans-serif; font-size: 20px; letter-spacing: 0.05em;
+  color: var(--gold-light);
+}
+#page-protocol .goal-numbers { display: flex; gap: 22px; align-items: flex-end; }
+#page-protocol .goal-num { text-align: center; }
+#page-protocol .goal-num-val {
+  font-family: 'Syne', sans-serif; font-size: 28px; line-height: 1; color: var(--text);
+}
+#page-protocol .goal-num-label {
+  font-size: 10px; color: var(--text-muted); font-family: 'Space Mono', monospace;
+  text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px;
+}
+#page-protocol .goal-progress-track {
+  background: var(--surface2); border-radius: 4px; height: 8px;
+  overflow: visible; position: relative; margin-bottom: 8px;
+}
+#page-protocol .goal-progress-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  position: relative; transition: width 0.6s ease;
+}
+#page-protocol .goal-progress-fill::after {
+  content: ''; position: absolute; right: -1px; top: -3px;
+  width: 14px; height: 14px; border-radius: 50%;
+  background: var(--gold-light); box-shadow: 0 0 12px var(--gold);
+}
+#page-protocol .progress-labels {
+  display: flex; justify-content: space-between;
+  font-family: 'Space Mono', monospace; font-size: 10px;
+  color: var(--text-muted); margin-top: 12px;
+}
+#page-protocol .stats-grid {
+  margin-top: 18px; display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;
+}
+#page-protocol .stat-box {
+  background: var(--surface2); border-radius: 8px; padding: 12px; text-align: center;
+}
+#page-protocol .stat-val { font-family: 'Syne', sans-serif; font-size: 24px; line-height: 1; }
+#page-protocol .stat-label {
+  font-size: 10px; color: var(--text-muted); font-family: 'Space Mono', monospace;
+  text-transform: uppercase; letter-spacing: 0.1em; margin-top: 3px;
+}
+
+#page-protocol .weight-edit-wrap { position: relative; display: inline-block; }
+#page-protocol .weight-input {
+  font-family: 'Syne', sans-serif; font-size: 28px; line-height: 1;
+  color: var(--gold-light); background: transparent; border: none;
+  border-bottom: 2px solid rgba(94,207,207,0.4); outline: none;
+  width: 72px; text-align: center; caret-color: var(--gold);
+  transition: border-color 0.2s;
+}
+#page-protocol .weight-input:focus { border-bottom-color: var(--gold-light); }
+#page-protocol .edit-hint {
+  font-family: 'Space Mono', monospace; font-size: 9px; color: var(--gold-dim);
+  text-align: center; margin-top: 4px; letter-spacing: 0.1em; text-transform: uppercase;
+}
+#page-protocol .update-btn {
+  display: block; margin: 16px auto 0;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  color: var(--black); border: none; border-radius: 8px;
+  padding: 10px 28px; font-family: 'Syne', sans-serif;
+  font-size: 16px; letter-spacing: 0.1em; cursor: pointer;
+  transition: opacity 0.2s, transform 0.1s;
+}
+#page-protocol .update-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+#page-protocol .update-btn:active { transform: translateY(0); }
+
+#page-protocol .now-badge {
+  display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px 10px;
+  font-family: 'Space Mono', monospace; font-size: 10px; color: var(--green);
+  background: rgba(94,207,207,0.1); border: 1px solid rgba(94,207,207,0.2);
+  padding: 8px 14px; border-radius: 20px; margin-bottom: 22px;
+}
+#page-protocol .now-label {
+  font-weight: 700; color: var(--green); white-space: nowrap; font-size: 10px;
+}
+#page-protocol .now-divider {
+  color: rgba(94,207,207,0.35); font-size: 10px;
+}
+#page-protocol .now-stat {
+  display: flex; flex-direction: column; align-items: center; line-height: 1.2;
+}
+#page-protocol .now-stat-val {
+  font-size: 13px; font-weight: 700; color: var(--green);
+}
+#page-protocol .now-stat-lbl {
+  font-size: 7.5px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: rgba(94,207,207,0.6); white-space: nowrap;
+}
+#page-protocol .pulse {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--green);
+  animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:0.5;transform:scale(0.8);} }
+@keyframes fadeDown { from{opacity:0;transform:translateY(-20px);} to{opacity:1;transform:translateY(0);} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+
+@media (max-width: 600px) {
+  #page-protocol .compound-grid { grid-template-columns: 1fr; }
+  #page-protocol .goal-numbers { gap: 14px; }
+  #page-protocol .timeline::before { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     HOME / DASHBOARD
+     ═══════════════════════════════════════════════════════ -->
+<div id="page-home" class="page active">
+  <div class="home-wrap">
+    <div class="home-greeting">
+      <div class="home-eyebrow">Command Center</div>
+      <div class="home-hi">Hi <span>Rae</span></div>
+      <div class="home-date" id="home-date">— · — · —</div>
+    </div>
+
+    <div class="score-card">
+      <div class="score-row">
+        <div class="score-cell">
+          <div class="score-cell-num gold" id="dash-habits-score">—</div>
+          <div class="score-cell-sub">Days to</div>
+          <div class="score-cell-tiny">Hyrox · Nov 22</div>
+        </div>
+        <div class="score-cell">
+          <div class="score-cell-num teal" id="dash-stack-score">—</div>
+          <div class="score-cell-sub">Injections</div>
+        </div>
+        <div class="score-cell">
+          <div class="score-cell-num purple" id="dash-phase-day">—</div>
+          <div class="score-cell-sub">Phase Day</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STACK card -->
+    <div class="today-card stack">
+      <div class="tc-header">
+        <div>
+          <div class="tc-title">Today's Injections</div>
+          <div class="tc-meta" id="dash-stack-meta">Loading cycle…</div>
+        </div>
+        <button class="tc-jump" data-jump="stack">Open →</button>
+      </div>
+      <div id="dash-stack-content"></div>
+    </div>
+
+    <!-- PROTOCOL card -->
+    <div class="today-card protocol">
+      <div class="tc-header">
+        <div>
+          <div class="tc-title">Active Phase</div>
+          <div class="tc-meta">18-month roadmap</div>
+        </div>
+        <button class="tc-jump" data-jump="protocol">Open →</button>
+      </div>
+      <div class="tc-phase-banner">
+        <div class="tc-phase-name" id="dash-phase-name">Phase —</div>
+        <div class="tc-phase-meta" id="dash-phase-meta">— → —</div>
+        <div class="tc-phase-progress"><div class="tc-phase-fill" id="dash-phase-fill"></div></div>
+      </div>
+      <div id="dash-protocol-reminders"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     STACK PAGE
+     ═══════════════════════════════════════════════════════ -->
+<div id="page-stack" class="page">
+  <div class="stack-save-dot" id="s-save-dot"></div>
+
+  <div class="header">
+    <div class="eyebrow">Protocol Tracker</div>
+    <div class="title">Daily Stack</div>
+    <div class="subtitle">CURRENT CYCLE</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-header">
+      <span class="progress-label">Progress</span>
+      <span class="progress-count" id="s-prog-count">Loading…</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="s-prog-fill"></div></div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-card tirz">
+      <div class="legend-name">TIRZ</div>
+      <div class="legend-meta">Tirzepatide<br>5mg &nbsp;·&nbsp; Every 6 days</div>
+    </div>
+    <div class="legend-card tesa">
+      <div class="legend-name">TESA</div>
+      <div class="legend-meta">Tesamorelin<br>0.75→1mg &nbsp;·&nbsp; M–F</div>
+    </div>
+    <div class="legend-card lipo">
+      <div class="legend-name">BioB+</div>
+      <div class="legend-meta">BioBoost+ (F#2)<br>0.5mL &nbsp;·&nbsp; Sun &amp; Wed</div>
+    </div>
+  </div>
+
+  <div class="cal-wrap">
+    <div class="dow-header">
+      <div class="dow-label">MON</div><div class="dow-label">TUE</div>
+      <div class="dow-label">WED</div><div class="dow-label">THU</div>
+      <div class="dow-label">FRI</div><div class="dow-label">SAT</div>
+      <div class="dow-label">SUN</div>
+    </div>
+    <div id="s-calendar"></div>
+  </div>
+
+  <div class="stack-rem-summary">
+    <div class="stack-rem-title">Remaining Injections</div>
+    <div class="stack-rem-grid">
+      <div class="stack-rem-item tirz">
+        <div class="stack-rem-compound">TIRZ</div>
+        <div class="stack-rem-inj" id="s-f-tirz-inj">5</div>
+        <div class="stack-rem-unit" id="s-f-tirz-mg">25mg left</div>
+      </div>
+      <div class="stack-rem-item tesa">
+        <div class="stack-rem-compound">TESA</div>
+        <div class="stack-rem-inj" id="s-f-tesa-inj">--</div>
+        <div class="stack-rem-unit" id="s-f-tesa-mg">--mg left</div>
+      </div>
+      <div class="stack-rem-item lipo">
+        <div class="stack-rem-compound">BioB+</div>
+        <div class="stack-rem-inj" id="s-f-lipo-inj">--</div>
+        <div class="stack-rem-unit" id="s-f-lipo-mg">--mL left</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PROTOCOL PAGE
+     ═══════════════════════════════════════════════════════ -->
+<div id="page-protocol" class="page">
+  <div class="container">
+    <div class="header">
+      <div class="header-eyebrow">Stack Protocol · 18 Month Plan · Started Oct 22, 2025</div>
+      <h1>Protocol <span>Tracker</span></h1>
+      <div class="header-divider"></div>
+      <div class="header-sub">Body recomposition · Visceral fat reduction · Hyrox November 2026</div>
+    </div>
+
+    <div style="animation:fadeUp 0.6s ease both; text-align:center;">
+      <div class="now-badge" id="p-now-badge" style="display:inline-flex;">
+        <div class="pulse"></div>
+        <span class="now-label">Protocol Active</span>
+        <span class="now-divider">·</span>
+        <span class="now-stat"><span class="now-stat-val" id="p-badge-doses">–</span><span class="now-stat-lbl">doses taken</span></span>
+        <span class="now-divider">·</span>
+        <span class="now-stat"><span class="now-stat-val" id="p-badge-days">–</span><span class="now-stat-lbl">days on</span></span>
+        <span class="now-divider">·</span>
+        <span class="now-stat"><span class="now-stat-val" id="p-badge-week">–</span><span class="now-stat-lbl">week</span></span>
+      </div>
+    </div>
+
+    <div class="current-stack">
+      <div class="section-label">Injectable Stack · Currently Running</div>
+      <div class="compound-grid">
+
+        <div class="compound-card gold">
+          <div class="compound-header">
+            <div class="compound-name">Tirzepatide</div>
+            <div class="compound-dose">5mg / week</div>
+          </div>
+          <div class="compound-role">Primary fat loss driver · GLP-1 + GIP agonist</div>
+          <div class="compound-tags">
+            <span class="tag tag-gold">Appetite</span>
+            <span class="tag tag-gold">Fat Loss</span>
+            <span class="tag tag-gold">Insulin Sensitivity</span>
+          </div>
+          <div class="compound-timing">
+            <div class="timing-row"><div class="timing-dot" style="background:var(--gold)"></div>Weekly · consistent day · ongoing 18 months</div>
+            <div class="start-date">▶ Started Oct 22, 2025 · No end date</div>
+          </div>
+        </div>
+
+        <div class="compound-card green">
+          <div class="compound-header">
+            <div class="compound-name">Tesamorelin</div>
+            <div class="compound-dose">0.75→1mg / day</div>
+          </div>
+          <div class="compound-role">Visceral + trunk fat · GHRH peptide</div>
+          <div class="compound-tags">
+            <span class="tag tag-green">Visceral Fat</span>
+            <span class="tag tag-green">GH Stimulation</span>
+            <span class="tag tag-green">Trunk Fat</span>
+          </div>
+          <div class="compound-timing">
+            <div class="timing-row"><div class="timing-dot" style="background:var(--green)"></div>Nightly · fasted · 5 on / 2 off</div>
+            <div class="start-date">▶ Started Apr 29, 2026 · Ends Jul 3, 2026</div>
+          </div>
+        </div>
+
+        <div class="compound-card blue">
+          <div class="compound-header">
+            <div class="compound-name">BioBoost+</div>
+            <div class="compound-dose">0.5mL · 2x/week</div>
+          </div>
+          <div class="compound-role">Liver + lipid support · MIC + B vitamins</div>
+          <div class="compound-tags">
+            <span class="tag tag-blue">Liver Support</span>
+            <span class="tag tag-blue">Lipid Metabolism</span>
+            <span class="tag tag-blue">B Vitamins</span>
+          </div>
+          <div class="compound-timing">
+            <div class="timing-row"><div class="timing-dot" style="background:var(--blue)"></div>Sun + Thu · split dose · ongoing 18 months</div>
+            <div class="start-date">▶ Started Apr 16, 2026 · No end date</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="supplements-section">
+      <div class="section-label">Oral Supplements · Daily Protocol</div>
+      <div class="supp-grid">
+        <div class="supp-card">
+          <div class="supp-name">Creatine</div>
+          <div class="supp-dose">5g / daily</div>
+          <div class="supp-start">▶ Started ~Apr 16, 2026</div>
+          <div class="supp-purpose">Strength · muscle volumization · recovery · ongoing</div>
+        </div>
+        <div class="supp-card">
+          <div class="supp-name">Mag Glycinate + D3 + K2</div>
+          <div class="supp-dose">500mg + 2000IU + 100mcg</div>
+          <div class="supp-start">▶ Starting May 4, 2026</div>
+          <div class="supp-purpose">Sleep quality · amplifies Tesa GH pulse · bone health · cortisol · nightly</div>
+        </div>
+        <div class="supp-card">
+          <div class="supp-name">GHK-Cu Topical</div>
+          <div class="supp-dose">The Ordinary serum</div>
+          <div class="supp-start">▶ Starting May 4, 2026</div>
+          <div class="supp-purpose">Skin elasticity · collagen · hair follicle support · tissue quality during fat loss</div>
+        </div>
+        <div class="supp-card">
+          <div class="supp-name">Collagen Peptides</div>
+          <div class="supp-dose">1 scoop (10g) + Vitamin C</div>
+          <div class="supp-start">▶ M/W/F · 30 min pre-run</div>
+          <div class="supp-purpose">Tendon · ligament support during new running load · Baar protocol timing</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="roadmap-section">
+      <div class="section-label">18-Month Phase Roadmap · With Real Dates</div>
+      <div class="timeline">
+
+        <div class="phase">
+          <div class="phase-marker active">1</div>
+          <div class="phase-content active-phase">
+            <div class="phase-header">
+              <div class="phase-title" style="color:var(--gold-light)">Phase 1 · Visceral Assault</div>
+              <div class="phase-badge badge-active">NOW</div>
+            </div>
+            <div class="phase-dates">Apr 29, 2026 → Jul 3, 2026</div>
+            <div class="phase-duration">66 days · Tesa cycle · Apr 29 → Jul 3</div>
+            <div class="phase-compounds">
+              <span class="phase-tag tag-gold">Tirzepatide 5mg</span>
+              <span class="phase-tag tag-green">Tesamorelin 0.75→1mg</span>
+              <span class="phase-tag tag-blue">BioBoost+ 0.5mL</span>
+            </div>
+            <div class="phase-goal">Primary target: visceral and trunk fat confirmed by DEXA. Tesa does its targeted job on the belly first. Do not add or swap anything. Let it run the full 60 days clean.</div>
+          </div>
+        </div>
+
+        <div class="break-phase">
+          <div class="break-marker">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A4845" stroke-width="2"><path d="M10 9v6m4-6v6"/></svg>
+          </div>
+          <div class="break-content">
+            <div class="break-label">Transition · Tesa ends · 1-week washout · CJC/IPA begins</div>
+            <div class="break-dates">Jul 4, 2026 → Jul 12, 2026 (9-day washout)</div>
+            <div class="break-note">9-day washout · CJC/IPA starts Mon Jul 13</div>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="phase-marker next">2</div>
+          <div class="phase-content">
+            <div class="phase-header">
+              <div class="phase-title" style="color:var(--orange)">Phase 2 · Broad Recomp</div>
+              <div class="phase-badge badge-next">NEXT</div>
+            </div>
+            <div class="phase-dates">Jul 13, 2026 → Oct 11, 2026</div>
+            <div class="phase-duration">91 days · CJC-1295 no DAC + Ipamorelin · 5 on / 2 off</div>
+            <div class="phase-compounds">
+              <span class="phase-tag tag-gold">Tirzepatide 5mg</span>
+              <span class="phase-tag tag-orange">CJC-1295 no DAC</span>
+              <span class="phase-tag tag-orange">Ipamorelin</span>
+              <span class="phase-tag tag-blue">BioBoost+ 0.5mL</span>
+            </div>
+            <div class="phase-goal">Transition from visceral targeting to total body recomp. CJC/IPA delivers synergistic GHRH + GHRP pulse amplifying fat oxidation and lean mass support.</div>
+            <div class="phase-goal" style="margin-top:8px;padding:10px 12px;background:rgba(232,128,74,0.08);border-radius:10px;border-left:3px solid var(--orange);">
+              <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--orange);letter-spacing:0.08em;margin-bottom:6px;">DOSING PROTOCOL</div>
+              <div style="font-size:12px;line-height:1.7;color:var(--text-dim);">
+                Reconstitute with <strong style="color:var(--text)">2mL BAC water</strong><br>
+                <strong style="color:var(--text)">Wk 1-2 (Jul 13 - Jul 24):</strong> 4 units nightly · 0.2mg CJC / 0.2mg IPA<br>
+                <strong style="color:var(--text)">Wk 3-12 (Jul 27 - Oct 9):</strong> 6 units nightly · 0.3mg CJC / 0.3mg IPA<br>
+                <strong style="color:var(--text)">Schedule:</strong> M-F · fasted · nightly
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="break-phase">
+          <div class="break-marker">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4A4845" stroke-width="2"><path d="M10 9v6m4-6v6"/></svg>
+          </div>
+          <div class="break-content">
+            <div class="break-label">4-week receptor reset · Tirz + BioBoost+ only</div>
+            <div class="break-dates">Nov 1, 2026 → Nov 28, 2026</div>
+            <div class="break-note">Reassess body comp · if at or near goal, proceed to maintenance · second cycle optional based on results</div>
+          </div>
+        </div>
+
+        <div class="phase">
+          <div class="phase-marker maintenance">3</div>
+          <div class="phase-content">
+            <div class="phase-header">
+              <div class="phase-title" style="color:var(--text-dim)">Phase 3 · Maintenance</div>
+              <div class="phase-badge badge-repeat">ONGOING</div>
+            </div>
+            <div class="phase-dates">Nov 29, 2026 → mid 2027</div>
+            <div class="phase-duration">Ongoing · reassess stack · Tirz reverse titration begins</div>
+            <div class="phase-compounds">
+              <span class="phase-tag tag-gold">Tirzepatide · reverse titrate</span>
+              <span class="phase-tag" style="background:rgba(138,135,128,0.1);color:var(--text-dim);border:1px solid rgba(138,135,128,0.2)">CJC/IPA cycle 2 if needed</span>
+              <span class="phase-tag" style="background:rgba(138,135,128,0.1);color:var(--text-dim);border:1px solid rgba(138,135,128,0.2)">Stack TBD by results</span>
+            </div>
+            <div class="phase-goal">At or near 150–160lb goal. Tirz reverse titration begins. Second CJC/IPA cycle only if body comp warrants it — not a default. Stack transitions to maintenance and performance. Full reassessment of needs based on where you are. Consider NAD+ at 40.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="rules-section">
+      <div class="section-label">Non-Negotiable Protocol Rules</div>
+      <div class="rules-grid">
+        <div class="rule-card">
+          <div class="rule-icon">🌙</div>
+          <div class="rule-text">
+            <strong>Tesa · Night Only</strong>
+            Inject fasted, 2–3 hours post last meal. Aligns with natural nocturnal GH pulse. Magnesium nightly pairs with this for sleep amplification.
+          </div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-icon">🚫</div>
+          <div class="rule-text">
+            <strong>Never Stack Two GHRHs</strong>
+            Tesa and CJC hit the same receptor. Running simultaneously = receptor competition, not amplification. Sequential only. Always.
+          </div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-icon">💊</div>
+          <div class="rule-text">
+            <strong>Magnesium · Nightly</strong>
+            30–60 min before bed only. Not morning. Maximizes sleep quality which directly amplifies your Tesa GH pulse efficiency.
+          </div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-icon">🔄</div>
+          <div class="rule-text">
+            <strong>CJC/IPA · 5 on / 2 off</strong>
+            Weekly schedule: inject Mon–Fri, skip Sat–Sun. Mirrors natural weekend recovery and prevents receptor desensitization without a full month off. Take the weekends.
+          </div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-icon">⚖️</div>
+          <div class="rule-text">
+            <strong>Scale · Read the Floor</strong>
+            Tesa water retention weeks 1–4 is real and temporary. Track your lowest reading, not individual spikes. The floor keeps dropping.
+          </div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-icon">🥩</div>
+          <div class="rule-text">
+            <strong>Protein · 120–150g Daily</strong>
+            Non-negotiable for muscle retention during aggressive fat loss. The single most important nutrition lever in your entire protocol.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="future-section">
+      <div class="section-label">Situational Tools · Add Only When Triggered</div>
+      <div class="future-grid">
+        <div class="future-card">
+          <div class="future-name">GHK-Cu Injectable</div>
+          <div class="future-trigger">
+            <strong>Trigger</strong>
+            50–70lbs total loss · visible skin laxity · hair loss progression beyond topical control
+          </div>
+        </div>
+        <div class="future-card">
+          <div class="future-name">BPC-157</div>
+          <div class="future-trigger">
+            <strong>Trigger</strong>
+            Joint pain limiting training · tendon irritation · slow injury recovery interfering with Hyrox prep
+          </div>
+        </div>
+        <div class="future-card">
+          <div class="future-name">MOTS-C</div>
+          <div class="future-trigger">
+            <strong>Trigger</strong>
+            Fat loss stalled 4+ weeks despite adherence · bloodwork shows insulin resistance · A1C rising despite Tirz
+          </div>
+        </div>
+        <div class="future-card">
+          <div class="future-name">Retatrutide</div>
+          <div class="future-trigger">
+            <strong>Trigger</strong>
+            Confirmed Tirz plateau · provider consult required · next-tier GLP-1 upgrade decision
+          </div>
+        </div>
+        <div class="future-card">
+          <div class="future-name">Sermorelin</div>
+          <div class="future-trigger">
+            <strong>Trigger</strong>
+            Between CJC/IPA cycles only · low-cost GH maintenance bridge · receptor reset periods
+          </div>
+        </div>
+        <div class="future-card">
+          <div class="future-name">Omega-3</div>
+          <div class="future-trigger">
+            <strong>Trigger</strong>
+            Add when ready · 2–3g daily · anti-inflammatory · lipid metabolism · cardiovascular support
+          </div>
+        </div>
+        <div class="future-card">
+          <div class="future-name">Berberine</div>
+          <div class="future-trigger">
+            <strong>Trigger</strong>
+            Add when ready · 500mg with meals · A1C support · AMPK activation · glucose metabolism
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="goal-section">
+      <div class="section-label">Goal Tracker · Oct 22, 2025 → Apr 22, 2027</div>
+      <div class="goal-card">
+        <div class="goal-header">
+          <div class="goal-title">Body Recomposition Progress</div>
+          <div class="goal-numbers">
+            <div class="goal-num">
+              <div class="goal-num-val" style="color:var(--text-dim)">240</div>
+              <div class="goal-num-label">Start</div>
+            </div>
+            <div class="goal-num">
+              <div class="weight-edit-wrap">
+                <input class="weight-input" id="p-currentWeight" type="number" value="184" min="100" max="400" inputmode="decimal" />
+                <div class="edit-hint">tap to edit</div>
+              </div>
+              <div class="goal-num-label" style="margin-top:8px;">Current</div>
+            </div>
+            <div class="goal-num">
+              <div class="goal-num-val" style="color:var(--green)">155</div>
+              <div class="goal-num-label">Goal</div>
+            </div>
+          </div>
+        </div>
+        <button class="update-btn" id="p-update-btn">UPDATE PROGRESS</button>
+        <div style="margin-top:18px;">
+          <div class="goal-progress-track">
+            <div class="goal-progress-fill" id="p-progressFill"></div>
+          </div>
+          <div class="progress-labels">
+            <span>240 lbs · Oct 2025</span>
+            <span id="p-progressCurrentLabel">▲ 184 lbs · Current</span>
+            <span>155 lbs · Goal</span>
+          </div>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-val" style="color:var(--gold-light)" id="p-statLost">56</div>
+            <div class="stat-label">lbs lost total</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" style="color:var(--blue)" id="p-statToGo">29</div>
+            <div class="stat-label">lbs to goal</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" style="color:var(--green)" id="p-statPct">32%</div>
+            <div class="stat-label">of journey done</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" style="color:var(--green)">5.6</div>
+            <div class="stat-label">A1C · Mar 2026 ↓</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" style="color:var(--gold)" id="p-statTirzDays">195</div>
+            <div class="stat-label">days on Tirz</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" style="color:var(--green)" id="p-statTesaDays">5</div>
+            <div class="stat-label">days on Tesa</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" style="color:var(--purple)">NOV</div>
+            <div class="stat-label">Hyrox target</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val" style="color:var(--text-dim)" id="p-statBmi">—</div>
+            <div class="stat-label">BMI (5'4")</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     TAB BAR
+     ═══════════════════════════════════════════════════════ -->
+<!-- ═══════════════════════════════════════════════════════
+     TIRZ ROADMAP PAGE
+     ═══════════════════════════════════════════════════════ -->
+<style>
+/* ---- Tirz Roadmap scoped vars & layout ---- */
+#page-tirz {
+  --t-teal: #5ecfcf;
+  --t-purple: #9b6fc4;
+  --t-pink: #e66fa3;
+  --t-gold: #f0c94a;
+  --t-orange: #f0934a;
+  --t-card: #12121a;
+  --t-border: rgba(94,207,207,0.15);
+  --t-muted: #7070a0;
+  padding: calc(24px + var(--safe-top)) 16px 32px;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+#page-tirz::before {
+  content: '';
+  position: fixed;
+  top: -200px; left: -200px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(94,207,207,0.05) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#page-tirz .t-header {
+  text-align: center;
+  margin-bottom: 24px;
+  animation: tirz-fadeUp 0.6s ease both;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  padding: 8px 0 4px;
+}
+#page-tirz .t-header::before {
+  content: 'ROADMAP';
+  position: absolute;
+  left: 0; right: 0;
+  top: 18px;
+  text-align: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 52px;
+  color: rgba(155,111,196,0.05);
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  line-height: 1;
+  z-index: 0;
+}
+#page-tirz .t-header h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--t-teal), var(--t-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+  position: relative;
+  z-index: 1;
+}
+#page-tirz .t-header p {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--t-muted);
+  margin-top: 6px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+
+#page-tirz .t-weight-wrap {
+  background: var(--t-card);
+  border: 1px solid rgba(94,207,207,0.3);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  animation: tirz-fadeUp 0.6s ease 0.05s both;
+  position: relative; z-index: 1;
+}
+#page-tirz .t-weight-label {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--t-teal);
+  white-space: nowrap;
+}
+#page-tirz .t-weight-right { display: flex; align-items: center; gap: 8px; }
+#page-tirz .t-weight-input {
+  background: rgba(94,207,207,0.08);
+  border: 1px solid rgba(94,207,207,0.4);
+  border-radius: 10px;
+  color: var(--t-teal);
+  font-family: 'Space Mono', monospace;
+  font-size: 1.1rem;
+  font-weight: 700;
+  width: 80px;
+  text-align: center;
+  padding: 6px 4px;
+  outline: none;
+  -moz-appearance: textfield;
+}
+#page-tirz .t-weight-input::-webkit-outer-spin-button,
+#page-tirz .t-weight-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+#page-tirz .t-weight-input:focus {
+  border-color: var(--t-teal);
+  background: rgba(94,207,207,0.14);
+}
+#page-tirz .t-weight-unit { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--t-muted); }
+#page-tirz .t-update-btn {
+  background: linear-gradient(135deg, var(--t-teal), var(--t-purple));
+  border: none;
+  border-radius: 10px;
+  color: #0a0a0f;
+  font-family: 'Syne', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 8px 14px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+#page-tirz .t-update-btn:active { opacity: 0.8; }
+
+#page-tirz .t-stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 20px;
+  animation: tirz-fadeUp 0.6s ease 0.1s both;
+  position: relative; z-index: 1;
+}
+#page-tirz .t-stat-card {
+  background: var(--t-card);
+  border: 1px solid var(--t-border);
+  border-radius: 12px;
+  padding: 10px 6px;
+  text-align: center;
+}
+#page-tirz .t-stat-label { font-family: 'Space Mono', monospace; font-size: 0.42rem; color: var(--t-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+#page-tirz .t-stat-value { font-family: 'Syne', sans-serif; font-size: 1.05rem; font-weight: 800; line-height: 1; }
+#page-tirz .t-stat-sub { font-family: 'Space Mono', monospace; font-size: 0.42rem; color: var(--t-muted); margin-top: 3px; }
+
+#page-tirz .t-progress-section {
+  background: var(--t-card);
+  border: 1px solid var(--t-border);
+  border-radius: 16px;
+  padding: 20px 16px;
+  margin-bottom: 20px;
+  animation: tirz-fadeUp 0.6s ease 0.2s both;
+  position: relative; z-index: 1;
+}
+#page-tirz .t-section-label { font-family: 'Space Mono', monospace; font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--t-muted); margin-bottom: 14px; }
+#page-tirz .t-bar-wrap { position: relative; height: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; margin-bottom: 8px; }
+#page-tirz .t-bar-ww { position: absolute; left: 0; top: 0; bottom: 0; background-image: repeating-linear-gradient(135deg, rgba(157,123,199,0.5) 0px, rgba(157,123,199,0.5) 4px, rgba(157,123,199,0.15) 4px, rgba(157,123,199,0.15) 8px); border-radius: 10px 0 0 10px; transition: width 0.6s ease; }
+#page-tirz .t-bar-tirz { position: absolute; top: 0; bottom: 0; background: linear-gradient(90deg, var(--t-teal), var(--t-purple)); transition: left 0.6s ease, width 0.6s ease; }
+#page-tirz .t-bar-remaining { position: absolute; top: 0; bottom: 0; background: linear-gradient(90deg, var(--t-purple), var(--t-pink)); border-radius: 0 10px 10px 0; transition: left 0.6s ease, width 0.6s ease; }
+#page-tirz .t-bar-labels { display: flex; justify-content: space-between; font-family: 'Space Mono', monospace; font-size: 0.46rem; color: var(--t-muted); margin-top: 6px; }
+#page-tirz .t-bar-legend { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+#page-tirz .t-legend-item { display: flex; align-items: center; gap: 5px; font-family: 'Space Mono', monospace; font-size: 0.52rem; color: var(--t-muted); }
+#page-tirz .t-legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+#page-tirz .t-dose-section {
+  background: var(--t-card);
+  border: 1px solid var(--t-border);
+  border-radius: 16px;
+  padding: 20px 16px;
+  margin-bottom: 20px;
+  animation: tirz-fadeUp 0.6s ease 0.3s both;
+  position: relative; z-index: 1;
+}
+#page-tirz .t-dose-timeline { display: flex; align-items: center; margin-top: 4px; overflow-x: auto; padding-bottom: 4px; }
+#page-tirz .t-dose-node { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+#page-tirz .t-dose-circle {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.5rem; font-weight: 700; border: 2px solid;
+}
+#page-tirz .t-dose-label { font-family: 'Space Mono', monospace; font-size: 0.45rem; color: var(--t-muted); margin-top: 4px; text-align: center; }
+#page-tirz .t-dose-connector { flex: 1; height: 2px; min-width: 12px; background: linear-gradient(90deg, var(--tc1, #aaa), var(--tc2, #aaa)); margin-bottom: 20px; }
+
+#page-tirz .t-phases {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  animation: tirz-fadeUp 0.6s ease 0.4s both;
+  position: relative; z-index: 1;
+}
+#page-tirz .t-phase-card { border-radius: 16px; border: 1px solid; padding: 14px; position: relative; overflow: hidden; background: var(--t-card); }
+#page-tirz .t-phase-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+#page-tirz .t-phase-active { border-color: rgba(230,111,163,0.3); }
+#page-tirz .t-phase-active::before { background: linear-gradient(90deg, var(--t-purple), var(--t-pink)); }
+#page-tirz .t-phase-maintain { border-color: rgba(94,207,207,0.3); }
+#page-tirz .t-phase-maintain::before { background: linear-gradient(90deg, var(--t-teal), #5ec4cf); }
+#page-tirz .t-phase-taper { border-color: rgba(240,147,74,0.3); }
+#page-tirz .t-phase-taper::before { background: linear-gradient(90deg, var(--t-orange), var(--t-gold)); }
+#page-tirz .t-phase-free { border-color: rgba(240,201,74,0.3); }
+#page-tirz .t-phase-free::before { background: linear-gradient(90deg, var(--t-gold), #fff8a0); }
+#page-tirz .t-phase-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+#page-tirz .t-phase-eyebrow { font-family: 'Space Mono', monospace; font-size: 0.5rem; color: var(--t-muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; white-space: nowrap; }
+#page-tirz .t-phase-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 800; line-height: 1.1; min-height: 2.4rem; display: flex; align-items: flex-end; }
+#page-tirz .t-phase-badge { font-family: 'Space Mono', monospace; font-size: 0.45rem; padding: 3px 6px; border-radius: 20px; border: 1px solid; white-space: nowrap; flex-shrink: 0; align-self: flex-start; }
+#page-tirz .t-phase-rows { display: flex; flex-direction: column; gap: 5px; }
+#page-tirz .t-phase-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 8px; background: rgba(255,255,255,0.03); border-radius: 8px; }
+#page-tirz .t-phase-row-label { font-family: 'Space Mono', monospace; font-size: 0.48rem; color: var(--t-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+#page-tirz .t-phase-row-value { font-family: 'Space Mono', monospace; font-size: 0.55rem; font-weight: 700; text-align: right; }
+
+#page-tirz .t-supply-card {
+  background: var(--t-card);
+  border: 1px solid rgba(94,207,207,0.2);
+  border-radius: 16px;
+  padding: 16px;
+  margin-top: 12px;
+  animation: tirz-fadeUp 0.6s ease 0.5s both;
+  position: relative; overflow: hidden; z-index: 1;
+}
+#page-tirz .t-supply-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--t-teal), var(--t-purple), var(--t-pink)); }
+#page-tirz .t-supply-title { font-family: 'Syne', sans-serif; font-size: 0.85rem; font-weight: 800; margin-bottom: 10px; color: var(--t-teal); }
+#page-tirz .t-supply-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-family: 'Space Mono', monospace; font-size: 0.55rem; }
+#page-tirz .t-supply-row:last-child { border-bottom: none; }
+#page-tirz .t-supply-row-label { color: var(--t-muted); }
+
+#page-tirz .t-hi-teal  { color: var(--t-teal); }
+#page-tirz .t-hi-purple { color: var(--t-purple); }
+#page-tirz .t-hi-pink   { color: var(--t-pink); }
+#page-tirz .t-hi-gold   { color: var(--t-gold); }
+#page-tirz .t-hi-orange { color: var(--t-orange); }
+#page-tirz .t-flash { animation: tirz-flash 0.5s ease; }
+
+@keyframes tirz-flash { 0%,100%{opacity:1} 30%{opacity:0.3} }
+@keyframes tirz-fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+</style>
+
+<div id="page-tirz" class="page">
+  <div class="t-header">
+    <h1>Tirz Journey</h1>
+    <p>Loss &bull; Maintenance &bull; Taper &bull; Freedom</p>
+  </div>
+
+  <div class="t-weight-wrap">
+    <div class="t-weight-label">Update Today's Weight</div>
+    <div class="t-weight-right">
+      <input type="number" class="t-weight-input" id="t-weightInput" value="183.7" step="0.1" min="100" max="300">
+      <span class="t-weight-unit">lb</span>
+      <button class="t-update-btn" onclick="TirzApp.update()">Update</button>
+    </div>
+  </div>
+
+  <div class="t-stats-row">
+    <div class="t-stat-card">
+      <div class="t-stat-label">WW Start</div>
+      <div class="t-stat-value" style="color:var(--t-muted)">240<span style="font-size:0.7rem">lb</span></div>
+      <div class="t-stat-sub">Aug 1, 2025</div>
+    </div>
+    <div class="t-stat-card">
+      <div class="t-stat-label">Tirz Start</div>
+      <div class="t-stat-value" style="color:var(--t-purple)">229<span style="font-size:0.7rem">lb</span></div>
+      <div class="t-stat-sub">Oct 22, 2025</div>
+    </div>
+    <div class="t-stat-card">
+      <div class="t-stat-label">Today</div>
+      <div class="t-stat-value" style="color:var(--t-teal)" id="t-statToday">183.7<span style="font-size:0.7rem">lb</span></div>
+      <div class="t-stat-sub" id="t-statTirzLoss">-45.3 lb on tirz</div>
+    </div>
+    <div class="t-stat-card">
+      <div class="t-stat-label">Goal</div>
+      <div class="t-stat-value" style="color:var(--t-pink)">150<span style="font-size:0.7rem">lb</span></div>
+      <div class="t-stat-sub" id="t-statToGo">33.7 to go</div>
+    </div>
+  </div>
+
+  <div class="t-progress-section">
+    <div class="t-section-label">Total Journey Progress (240 &rarr; 150)</div>
+    <div class="t-bar-wrap">
+      <div class="t-bar-ww" id="t-barWW" style="width:12.2%"></div>
+      <div class="t-bar-tirz" id="t-barTirz" style="left:12.2%;width:50.3%"></div>
+      <div class="t-bar-remaining" id="t-barRemaining" style="left:62.5%;width:37.5%"></div>
+    </div>
+    <div class="t-bar-labels">
+      <span>240</span>
+      <span>229</span>
+      <span id="t-barLabelNow">183.7 (now)</span>
+      <span>150</span>
+    </div>
+    <div class="t-bar-legend">
+      <div class="t-legend-item">
+        <div class="t-legend-dot" style="background-image:repeating-linear-gradient(135deg, rgba(157,123,199,0.7) 0px, rgba(157,123,199,0.7) 2px, rgba(157,123,199,0.2) 2px, rgba(157,123,199,0.2) 4px)"></div>
+        <span>WW loss (11 lb)</span>
+      </div>
+      <div class="t-legend-item">
+        <div class="t-legend-dot" style="background:linear-gradient(135deg,var(--t-teal),var(--t-purple))"></div>
+        <span id="t-legendTirz">Tirz loss (45.3 lb)</span>
+      </div>
+      <div class="t-legend-item">
+        <div class="t-legend-dot" style="background:linear-gradient(135deg,var(--t-purple),var(--t-pink))"></div>
+        <span id="t-legendRemaining">Remaining (33.7 lb)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="t-dose-section">
+    <div class="t-section-label">Dose History</div>
+    <div class="t-dose-timeline">
+      <div class="t-dose-node">
+        <div class="t-dose-circle" style="color:#aaa;border-color:#aaa;background:rgba(170,170,170,0.1)">2.2</div>
+        <div class="t-dose-label">Start</div>
+      </div>
+      <div class="t-dose-connector" style="--tc1:#aaa;--tc2:#f0c94a"></div>
+      <div class="t-dose-node">
+        <div class="t-dose-circle" style="color:var(--t-gold);border-color:var(--t-gold);background:rgba(240,201,74,0.1)">2.5</div>
+        <div class="t-dose-label">Titrate</div>
+      </div>
+      <div class="t-dose-connector" style="--tc1:#f0c94a;--tc2:#f0934a"></div>
+      <div class="t-dose-node">
+        <div class="t-dose-circle" style="color:var(--t-orange);border-color:var(--t-orange);background:rgba(240,147,74,0.1)">3.5</div>
+        <div class="t-dose-label">Titrate</div>
+      </div>
+      <div class="t-dose-connector" style="--tc1:#f0934a;--tc2:#e06060"></div>
+      <div class="t-dose-node">
+        <div class="t-dose-circle" style="color:#e06060;border-color:#e06060;background:rgba(224,96,96,0.1)">4.5</div>
+        <div class="t-dose-label">Titrate</div>
+      </div>
+      <div class="t-dose-connector" style="--tc1:#e06060;--tc2:#e66fa3"></div>
+      <div class="t-dose-node">
+        <div class="t-dose-circle" style="color:var(--t-pink);border-color:var(--t-pink);background:rgba(230,111,163,0.15)">5mg</div>
+        <div class="t-dose-label">Current</div>
+      </div>
+      <div class="t-dose-connector" style="--tc1:#e66fa3;--tc2:#9b6fc4"></div>
+      <div class="t-dose-node">
+        <div class="t-dose-circle" style="color:var(--t-purple);border-color:var(--t-purple);background:rgba(155,111,196,0.15);font-size:0.4rem">Hold</div>
+        <div class="t-dose-label">Maintain</div>
+      </div>
+      <div class="t-dose-connector" style="--tc1:#9b6fc4;--tc2:#5ecfcf"></div>
+      <div class="t-dose-node">
+        <div class="t-dose-circle" style="color:var(--t-teal);border-color:var(--t-teal);background:rgba(94,207,207,0.1);font-size:0.4rem">Taper</div>
+        <div class="t-dose-label">Free</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="t-phases">
+    <div class="t-phase-card t-phase-active">
+      <div class="t-phase-header">
+        <div>
+          <div class="t-phase-eyebrow">Phase 1 &bull; Now</div>
+          <div class="t-phase-title" style="color:var(--t-pink)">Active Loss</div>
+        </div>
+        <div class="t-phase-badge" style="color:var(--t-pink);border-color:rgba(230,111,163,0.4)">5mg / shot</div>
+      </div>
+      <div class="t-phase-rows">
+        <div class="t-phase-row"><span class="t-phase-row-label">Current Weight</span><span class="t-phase-row-value t-hi-pink" id="t-phaseCurrentWeight">183.7 lb</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Target</span><span class="t-phase-row-value">150 lb (buffer)</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">To Lose</span><span class="t-phase-row-value" id="t-phaseToLose">33.7 lb</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Loss Rate</span><span class="t-phase-row-value">~0.8&ndash;1.4 lb/wk</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Est. Duration</span><span class="t-phase-row-value t-hi-pink" id="t-phaseDuration">7&ndash;9 months</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Est. Arrival</span><span class="t-phase-row-value" id="t-phaseArrival">Nov 2026&ndash;Jan 2027</span></div>
+      </div>
+    </div>
+
+    <div class="t-phase-card t-phase-maintain">
+      <div class="t-phase-header">
+        <div>
+          <div class="t-phase-eyebrow">Phase 2 &bull; ~Late 2026</div>
+          <div class="t-phase-title" style="color:var(--t-teal)">Maintain</div>
+        </div>
+        <div class="t-phase-badge" style="color:var(--t-teal);border-color:rgba(94,207,207,0.4)">2.5&ndash;5mg</div>
+      </div>
+      <div class="t-phase-rows">
+        <div class="t-phase-row"><span class="t-phase-row-label">Target Weight</span><span class="t-phase-row-value t-hi-teal">150 lb</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Dose Est.</span><span class="t-phase-row-value">2.5&ndash;5mg</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Duration</span><span class="t-phase-row-value t-hi-teal">3&ndash;6 months</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Goal</span><span class="t-phase-row-value">Lock in. Build habits.</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Est. Exit</span><span class="t-phase-row-value">Mid 2027</span></div>
+      </div>
+    </div>
+
+    <div class="t-phase-card t-phase-taper">
+      <div class="t-phase-header">
+        <div>
+          <div class="t-phase-eyebrow">Phase 3 &bull; ~Mid 2027</div>
+          <div class="t-phase-title" style="color:var(--t-orange)">Reverse Titration</div>
+        </div>
+        <div class="t-phase-badge" style="color:var(--t-orange);border-color:rgba(240,147,74,0.4)">5&rarr;0mg</div>
+      </div>
+      <div class="t-phase-rows">
+        <div class="t-phase-row"><span class="t-phase-row-label">Start Dose</span><span class="t-phase-row-value">5mg</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Taper Steps</span><span class="t-phase-row-value">5&rarr;3.5<br>2.5&rarr;1.25&rarr;0</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Hold/Step</span><span class="t-phase-row-value">4&ndash;8 wks each</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Est. Duration</span><span class="t-phase-row-value t-hi-orange">6&ndash;12 months</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Watch For</span><span class="t-phase-row-value">Appetite, scale</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Est. Off Tirz</span><span class="t-phase-row-value">Mid 2027&ndash;Early 2028</span></div>
+      </div>
+    </div>
+
+    <div class="t-phase-card t-phase-free">
+      <div class="t-phase-header">
+        <div>
+          <div class="t-phase-eyebrow">Phase 4 &bull; ~2028</div>
+          <div class="t-phase-title" style="color:var(--t-gold)">Tirz Free</div>
+        </div>
+        <div class="t-phase-badge" style="color:var(--t-gold);border-color:rgba(240,201,74,0.4)">0mg</div>
+      </div>
+      <div class="t-phase-rows">
+        <div class="t-phase-row"><span class="t-phase-row-label">Target Weight</span><span class="t-phase-row-value t-hi-gold">~150&ndash;165 lb</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Tools</span><span class="t-phase-row-value">Training. Nutrition.</span></div>
+        <div class="t-phase-row"><span class="t-phase-row-label">Est. Timeline</span><span class="t-phase-row-value t-hi-gold">Mid&ndash;Late 2028</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="t-supply-card">
+    <div class="t-supply-title">Supply Snapshot</div>
+    <div class="t-supply-row"><span class="t-supply-row-label">Total stock on hand</span><span class="t-hi-teal">910 mg</span></div>
+    <div class="t-supply-row"><span class="t-supply-row-label">At 5mg / 6 days</span><span>182 shots &bull; ~36 months</span></div>
+    <div class="t-supply-row"><span class="t-supply-row-label">Supply runway</span><span class="t-hi-teal">~April 2029</span></div>
+    <div class="t-supply-row"><span class="t-supply-row-label">Estimated off tirz by</span><span class="t-hi-gold">Mid&ndash;Late 2028</span></div>
+    <div class="t-supply-row"><span class="t-supply-row-label">Buffer</span><span style="color:var(--t-pink)">~6 months overage</span></div>
+  </div>
+  <div style="height:20px;"></div>
+</div>
+
+<nav class="tab-bar">
+  <button class="tab-btn active" data-page="home">
+    <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9"/><path d="M5 10v10h14V10"/></svg>
+    <span>Home</span>
+  </button>
+  <button class="tab-btn" data-page="stack">
+    <svg viewBox="0 0 24 24"><path d="M12 2v3M19 5l-2 2M22 12h-3M19 19l-2-2M12 22v-3M5 19l2-2M2 12h3M5 5l2 2"/><circle cx="12" cy="12" r="4"/></svg>
+    <span>Stack</span>
+  </button>
+  <button class="tab-btn" data-page="protocol">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+    <span>Protocol</span>
+  </button>
+  <button class="tab-btn" data-page="tirz">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/><path d="M12 3V1M12 23v-2M3 12H1M23 12h-2"/></svg>
+    <span>Tirz Free</span>
+  </button>
+</nav>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   TAB SWITCHING
+   ═══════════════════════════════════════════════════════ */
+const tabBtns = document.querySelectorAll('.tab-btn');
+const pages = document.querySelectorAll('.page');
+
+function switchPage(pageId) {
+  pages.forEach(p => p.classList.toggle('active', p.id === 'page-' + pageId));
+  tabBtns.forEach(b => b.classList.toggle('active', b.dataset.page === pageId));
+  window.scrollTo(0, 0);
+  if (pageId === 'home' && window.renderDashboard) window.renderDashboard();
+}
+
+tabBtns.forEach(b => b.addEventListener('click', () => switchPage(b.dataset.page)));
+document.querySelectorAll('[data-jump]').forEach(b => {
+  b.addEventListener('click', () => switchPage(b.dataset.jump));
+});
+
+/* ═══════════════════════════════════════════════════════
+   STACK APP
+   ═══════════════════════════════════════════════════════ */
+const StackApp = (function () {
+  // ─── Anchors ─────────────────────────────────────────────
+  const TESA_START = new Date(2026, 3, 29); // Apr 29, 2026 (Wed) — Day 1 origin
+  const TESA_END   = new Date(2026, 6,  3); // Jul 3, 2026 — last Tesa dose
+  const WASHOUT_START = new Date(2026, 6,  4); // Jul 4
+  const WASHOUT_END   = new Date(2026, 6, 12); // Jul 12 (9-day washout)
+  const CJC_START  = new Date(2026, 6, 13); // Jul 13, 2026 (Mon)
+  const CJC_END    = new Date(2026, 9, 11); // Oct 11, 2026 — last calendar day of cycle
+  const CJC_TITRATION_END = new Date(2026, 6, 24); // Jul 24 (Fri) — last day of 4-unit phase
+
+  // Tirz rhythm transition: Thursdays through May 14, then every-6-days starting Wed May 20
+  const TIRZ_RHYTHM_FLIP = new Date(2026, 4, 20); // May 20, 2026 (Wed) — first every-6-day shot
+
+  const SITES = ['LR','UR','UL','LL'];
+
+  function addDays(d, n) { const r = new Date(d); r.setDate(r.getDate() + n); return r; }
+  function isSameDay(a, b) { return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate(); }
+  function dow(d) { return d.getDay(); }
+  function daysBetween(a, b) {
+    const aN = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+    const bN = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+    return Math.round((bN - aN) / 86400000);
+  }
+
+  // Tesa titration schedule anchored to Apr 29, 2026 (Wed)
+  const TESA_TITRATION = [
+    { from: new Date(2026, 3, 29), to: new Date(2026, 4, 10), dose: 0.75 }, // Wk 1-2
+    { from: new Date(2026, 4, 11), to: new Date(2026, 6,  3), dose: 1.0  }, // Wk 3-9 → Jul 3
+  ];
+
+  function tesaDose(date) {
+    for (const t of TESA_TITRATION) {
+      if (date >= t.from && date <= t.to) return t.dose;
+    }
+    return 1.0;
+  }
+
+  // CJC/IPA dose: 4 units (0.2mg) Wk 1-2, then 6 units (0.3mg) Wk 3-12
+  function cjcDose(date) {
+    if (date <= CJC_TITRATION_END) return 0.2;  // 4 units
+    return 0.3;                                  // 6 units
+  }
+  function cjcUnits(date) {
+    return cjcDose(date) === 0.2 ? 4 : 6;
+  }
+
+  // Phase determines what's active on a given day
+  function phaseFor(date) {
+    if (date >= TESA_START && date <= TESA_END) return 'TESA';
+    if (date >= WASHOUT_START && date <= WASHOUT_END) return 'WASHOUT';
+    if (date >= CJC_START && date <= CJC_END) return 'CJC';
+    if (date < TESA_START) return 'PRE';
+    return 'POST'; // beyond CJC end — only Tirz + BioB+ continue
+  }
+
+  // Is this date a Tirz shot day?
+  // Pre-May 20: Thursdays only.
+  // From May 20 onward: every 6 days starting May 20.
+  function isTirzDay(date) {
+    if (date < TIRZ_RHYTHM_FLIP) {
+      return dow(date) === 4; // Thursdays only
+    }
+    return daysBetween(TIRZ_RHYTHM_FLIP, date) % 6 === 0;
+  }
+
+  function activeCompounds(date) {
+    const list = [];
+    const d = dow(date);
+    const phase = phaseFor(date);
+
+    if (isTirzDay(date)) list.push('TIRZ');
+    if (phase === 'TESA' && d >= 1 && d <= 5) list.push('TESA');
+    if (phase === 'CJC'  && d >= 1 && d <= 5) list.push('CJC');
+    if (d === 0 || d === 3) list.push('LIPO'); // Sun + Wed indefinitely
+    return list;
+  }
+
+  // Build schedule for a date range. Site rotation continues from a seed of prior-day sites.
+  function buildScheduleRange(fromDate, toDate, seedPrevSites = []) {
+    const days = [];
+    let prev = seedPrevSites.slice();
+    let cur = new Date(fromDate);
+    while (cur <= toDate) {
+      const compounds = activeCompounds(cur);
+      const avail = SITES.filter(s => !prev.includes(s));
+      const opts = [...avail, ...SITES.filter(s => prev.includes(s))];
+      const assigned = [], used = [];
+      for (const c of compounds) {
+        const site = opts.find(s => !used.includes(s));
+        let dose = null;
+        if (c === 'TESA') dose = tesaDose(cur);
+        else if (c === 'CJC') dose = cjcDose(cur);
+        assigned.push({ id: c, site: site || SITES[used.length % 4], dose });
+        if (site) used.push(site);
+      }
+      days.push({ date: new Date(cur), compounds: assigned });
+      prev = used;
+      cur = addDays(cur, 1);
+    }
+    return days;
+  }
+
+  // Calculate site-rotation seed up to a given date by walking from TESA_START
+  // (cheap: maybe 90-180 iterations max, runs once on render)
+  function seedPrevSitesFor(date) {
+    if (date <= TESA_START) return [];
+    const yesterday = addDays(date, -1);
+    const walk = buildScheduleRange(TESA_START, yesterday);
+    const last = walk[walk.length - 1];
+    return last ? last.compounds.map(c => c.site) : [];
+  }
+
+  // Public: get a single day's schedule
+  function getDay(date) {
+    const seed = seedPrevSitesFor(date);
+    const built = buildScheduleRange(date, date, seed);
+    return built[0];
+  }
+
+  // Public: get the day-number from TESA_START (Day 1 = Apr 29)
+  function dayNumber(date) {
+    return daysBetween(TESA_START, date) + 1;
+  }
+
+  // Public: cycle-aware label for a date
+  function cycleLabel(date) {
+    const phase = phaseFor(date);
+    if (phase === 'TESA') {
+      const d = daysBetween(TESA_START, date) + 1;
+      return { phase: 'Tesa', text: `Tesa · D${d} of 66`, current: d, total: 66, color: '#5ecfcf' };
+    }
+    if (phase === 'WASHOUT') {
+      const d = daysBetween(WASHOUT_START, date) + 1;
+      return { phase: 'Washout', text: `Washout · D${d} of 9`, current: d, total: 9, color: '#7070a0' };
+    }
+    if (phase === 'CJC') {
+      const d = daysBetween(CJC_START, date) + 1;
+      return { phase: 'CJC/IPA', text: `CJC/IPA · C1·D${d} of 91`, current: d, total: 91, color: '#e8804a' };
+    }
+    if (phase === 'POST') {
+      return { phase: 'Maintenance', text: 'Maintenance · Tirz + BioB+', current: 0, total: 0, color: '#9b6fc4' };
+    }
+    return { phase: 'Pre', text: 'Pre-protocol', current: 0, total: 0, color: '#7070a0' };
+  }
+
+  const DB_NAME = 'rae-stack-may1';
+  let db = null, checked = {};
+  let dbReady = false;
+
+  function openDB() {
+    return new Promise((res, rej) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('kv');
+      req.onsuccess = e => { db = e.target.result; res(); };
+      req.onerror = () => rej(req.error);
+    });
+  }
+  function idbGet(k) {
+    return new Promise((res, rej) => {
+      const req = db.transaction('kv','readonly').objectStore('kv').get(k);
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+  }
+  function idbSet(k, v) {
+    return new Promise((res, rej) => {
+      const req = db.transaction('kv','readwrite').objectStore('kv').put(v, k);
+      req.onsuccess = () => res();
+      req.onerror = () => rej(req.error);
+    });
+  }
+
+  let dotTimer = null;
+  async function saveChecked() {
+    if (!dbReady) return;
+    await idbSet('checked', checked);
+    const dot = document.getElementById('s-save-dot');
+    dot.classList.add('show');
+    clearTimeout(dotTimer);
+    dotTimer = setTimeout(() => dot.classList.remove('show'), 800);
+  }
+
+  function fmtRange(dates) {
+    const first = dates.find(d => d), last = [...dates].reverse().find(d => d);
+    if (!first || !last) return '';
+    const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    return first.getMonth() === last.getMonth()
+      ? `${M[first.getMonth()]} ${first.getDate()}–${last.getDate()}`
+      : `${M[first.getMonth()]} ${first.getDate()} – ${M[last.getMonth()]} ${last.getDate()}`;
+  }
+
+  function dateKey(date) {
+    return date.getFullYear() + '-' + String(date.getMonth()+1).padStart(2,'0') + '-' + String(date.getDate()).padStart(2,'0');
+  }
+
+  // Rolling window state
+  let showAllHistory = false;
+
+  function getWindow() {
+    const today = new Date();
+    const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    if (showAllHistory) {
+      // From Tesa start through 2 weeks after today
+      return { from: new Date(TESA_START), to: addDays(t, 14) };
+    }
+    // Last week (Mon of prior week) + current + next 2 weeks (4 weeks total)
+    const todayDow = dow(t); // 0=Sun, 1=Mon...
+    // Treat Monday as week start
+    const daysFromMon = todayDow === 0 ? 6 : todayDow - 1;
+    const thisMon = addDays(t, -daysFromMon);
+    const lastMon = addDays(thisMon, -7);
+    const endSun  = addDays(thisMon, 20); // +3 weeks of Sundays out
+    return { from: lastMon, to: endSun };
+  }
+
+  function renderCalendar() {
+    const today = new Date();
+    const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const cal = document.getElementById('s-calendar');
+    if (!cal) return;
+    cal.innerHTML = '';
+
+    const win = getWindow();
+    const seed = seedPrevSitesFor(win.from);
+    const schedule = buildScheduleRange(win.from, win.to, seed);
+
+    // Group by week (Mon–Sun)
+    let cur = new Date(win.from);
+    // Snap cur back to Monday if not already
+    const curDow = dow(cur);
+    if (curDow !== 1) {
+      const back = curDow === 0 ? 6 : curDow - 1;
+      cur = addDays(cur, -back);
+    }
+
+    const end = win.to;
+
+    while (cur <= end) {
+      const wk = [];
+      for (let w = 0; w < 7; w++) { wk.push(new Date(cur)); cur = addDays(cur, 1); }
+
+      const grp = document.createElement('div');
+      grp.className = 'week-group';
+
+      const lbl = document.createElement('div');
+      lbl.className = 'week-label';
+      // Highlight current week
+      const isCurrentWeek = wk.some(d => isSameDay(d, t));
+      if (isCurrentWeek) lbl.classList.add('current');
+      lbl.textContent = fmtRange(wk) + (isCurrentWeek ? ' · THIS WEEK' : '');
+      grp.appendChild(lbl);
+
+      const row = document.createElement('div');
+      row.className = 'week-row';
+
+      for (const d of wk) {
+        const cell = document.createElement('div');
+        // Find this day in our built schedule
+        const sched = schedule.find(s => isSameDay(s.date, d));
+        if (!sched || d < TESA_START) {
+          cell.className = 'day-cell empty';
+          row.appendChild(cell);
+          continue;
+        }
+
+        const isToday = isSameDay(d, t);
+        const isPast = d < t && !isToday;
+        const key = dateKey(d);
+        const isDone = !!checked[key];
+        const phase = phaseFor(d);
+
+        let cellClass = 'day-cell';
+        if (isToday) cellClass += ' is-today';
+        if (isDone) cellClass += ' done';
+        if (isPast) cellClass += ' past';
+        if (isTirzDay(d)) cellClass += ' tirz-day';
+        if (phase === 'WASHOUT') cellClass += ' washout';
+        if (phase === 'CJC') cellClass += ' cjc-day';
+        cell.className = cellClass;
+        cell.dataset.key = key;
+
+        // Day label: "Mon·18" format
+        const dowNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const num = document.createElement('div');
+        num.className = 'day-num';
+        num.textContent = dowNames[d.getDay()] + '·' + d.getDate();
+        cell.appendChild(num);
+
+        // Day counter — D# for continuous count, or C1·D# during CJC
+        const ctr = document.createElement('div');
+        ctr.className = 'day-counter';
+        if (phase === 'CJC') {
+          const c1d = daysBetween(CJC_START, d) + 1;
+          ctr.textContent = 'C1·D' + c1d;
+        } else if (phase === 'WASHOUT' || phase === 'TESA' || phase === 'POST') {
+          ctr.textContent = 'D' + dayNumber(d);
+        }
+        cell.appendChild(ctr);
+
+        // Pills
+        const pills = document.createElement('div');
+        pills.className = 'pills';
+        for (const c of sched.compounds) {
+          const p = document.createElement('div');
+          p.className = `pill ${c.id.toLowerCase()}`;
+          let label = c.id === 'LIPO' ? 'BioB+' : c.id === 'CJC' ? 'CJC/IPA' : c.id;
+          let siteLabel = c.site;
+          if (c.id === 'TESA' && c.dose) siteLabel = c.dose + 'mg · ' + c.site;
+          if (c.id === 'CJC' && c.dose) siteLabel = c.dose + 'mg · ' + c.site;
+          p.innerHTML = `<span>${label}</span><span class="pill-site">${siteLabel}</span>`;
+          pills.appendChild(p);
+        }
+        if (phase === 'WASHOUT' && sched.compounds.length === 0) {
+          const w = document.createElement('div');
+          w.className = 'washout-label';
+          w.textContent = 'washout';
+          pills.appendChild(w);
+        }
+        cell.appendChild(pills);
+
+        if (isToday) {
+          const tagEl = document.createElement('div');
+          tagEl.className = 'today-tag';
+          tagEl.textContent = 'today';
+          cell.appendChild(tagEl);
+        }
+        const ov = document.createElement('div');
+        ov.className = 'check-overlay';
+        ov.textContent = '✓';
+        cell.appendChild(ov);
+
+        if (sched.compounds.length > 0) {
+          cell.addEventListener('click', () => toggle(key));
+        }
+        row.appendChild(cell);
+      }
+      grp.appendChild(row);
+      cal.appendChild(grp);
+    }
+
+    // Add "view all history" / "back to today" toggle button
+    const btnWrap = document.createElement('div');
+    btnWrap.style.cssText = 'text-align:center; margin-top:18px; padding-bottom:8px;';
+    const btn = document.createElement('button');
+    btn.style.cssText = 'background:rgba(94,207,207,0.08); border:1px solid rgba(94,207,207,0.3); color:#5ecfcf; padding:8px 16px; border-radius:8px; font-family:"Space Mono",monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; cursor:pointer;';
+    btn.textContent = showAllHistory ? '← Back to rolling view' : 'View all history ↓';
+    btn.addEventListener('click', () => { showAllHistory = !showAllHistory; renderCalendar(); updateUI(); });
+    btnWrap.appendChild(btn);
+    cal.appendChild(btnWrap);
+  }
+
+  async function toggle(key) {
+    checked[key] = !checked[key];
+    if (!checked[key]) delete checked[key];
+    await saveChecked();
+    updateUI();
+    if (window.renderDashboard) window.renderDashboard();
+  }
+
+  function updateUI() {
+    // Cycle-aware progress
+    const today = new Date();
+    const t = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const cyc = cycleLabel(t);
+
+    const progFill = document.getElementById('s-prog-fill');
+    const progCount = document.getElementById('s-prog-count');
+    if (progFill && progCount) {
+      const pct = cyc.total > 0 ? (cyc.current / cyc.total * 100) : 0;
+      progFill.style.width = pct + '%';
+      progFill.style.background = cyc.color;
+      progCount.textContent = cyc.text;
+    }
+
+    // Update done states on visible cells (now keyed by date string)
+    document.querySelectorAll('#page-stack .day-cell[data-key]').forEach(cell => {
+      const k = cell.dataset.key;
+      checked[k] ? cell.classList.add('done') : cell.classList.remove('done');
+    });
+
+    // Remaining injections in current cycle
+    const rem = { TIRZ: 0, TESA: 0, TESA_MG: 0, LIPO: 0, CJC: 0 };
+
+    // Determine current cycle window
+    let cycleFrom, cycleTo;
+    if (cyc.phase === 'Tesa') { cycleFrom = TESA_START; cycleTo = TESA_END; }
+    else if (cyc.phase === 'CJC/IPA') { cycleFrom = CJC_START; cycleTo = CJC_END; }
+    else if (cyc.phase === 'Washout') { cycleFrom = WASHOUT_START; cycleTo = WASHOUT_END; }
+    else { cycleFrom = t; cycleTo = addDays(t, 30); }
+
+    const seed = seedPrevSitesFor(cycleFrom);
+    const cycleSched = buildScheduleRange(cycleFrom, cycleTo, seed);
+    for (const day of cycleSched) {
+      if (day.date < t) continue; // only count from today forward
+      const k = dateKey(day.date);
+      if (checked[k]) continue;
+      for (const c of day.compounds) {
+        rem[c.id] = (rem[c.id] || 0) + 1;
+        if (c.id === 'TESA') rem.TESA_MG = (rem.TESA_MG || 0) + (c.dose || 1.0);
+      }
+    }
+
+    const tirzInj = document.getElementById('s-f-tirz-inj');
+    const tirzMg  = document.getElementById('s-f-tirz-mg');
+    const tesaInj = document.getElementById('s-f-tesa-inj');
+    const tesaMg  = document.getElementById('s-f-tesa-mg');
+    const lipoInj = document.getElementById('s-f-lipo-inj');
+    const lipoMg  = document.getElementById('s-f-lipo-mg');
+    if (tirzInj) tirzInj.textContent = rem.TIRZ || 0;
+    if (tirzMg)  tirzMg.textContent  = ((rem.TIRZ || 0) * 5) + 'mg left';
+    if (tesaInj) tesaInj.textContent = rem.TESA || 0;
+    if (tesaMg)  tesaMg.textContent  = (rem.TESA_MG || 0).toFixed(2) + 'mg left';
+    if (lipoInj) lipoInj.textContent = rem.LIPO || 0;
+    if (lipoMg)  lipoMg.textContent  = ((rem.LIPO || 0) * 0.5).toFixed(1) + 'mL left';
+  }
+
+  const ready = openDB()
+    .then(() => idbGet('checked'))
+    .then(saved => {
+      // Migrate any old idx-based check data (keys like "0","1","2") to date-keyed
+      const raw = saved || {};
+      const migrated = {};
+      const OLD_START = new Date(2026, 4, 1); // The old May 1 origin
+      for (const k of Object.keys(raw)) {
+        if (!raw[k]) continue;
+        if (/^\d+$/.test(k)) {
+          // old numeric idx — translate to date relative to old origin
+          const date = addDays(OLD_START, parseInt(k));
+          migrated[dateKey(date)] = true;
+        } else {
+          migrated[k] = true;
+        }
+      }
+      checked = migrated;
+      dbReady = true;
+    })
+    .catch(() => {
+      try { checked = JSON.parse(localStorage.getItem('rae-protocol-2026') || '{}'); }
+      catch (e) { checked = {}; }
+    })
+    .finally(() => { renderCalendar(); updateUI(); });
+
+  return {
+    TESA_START,
+    TESA_END,
+    WASHOUT_START,
+    WASHOUT_END,
+    CJC_START,
+    CJC_END,
+    getDay,
+    dayNumber,
+    cycleLabel,
+    phaseFor,
+    isTirzDay,
+    isDone: (key) => !!checked[key],
+    dateKey,
+    toggle: async (key) => { await toggle(key); },
+    ready
+  };
+})();
+
+/* ═══════════════════════════════════════════════════════
+   PROTOCOL APP
+   ═══════════════════════════════════════════════════════ */
+const ProtocolApp = (function () {
+  const START_WEIGHT = 240;
+  const GOAL_WEIGHT = 155;
+  const HEIGHT_IN = 64; // 5'4"
+  const TIRZ_START = new Date(2025, 9, 22); // Oct 22, 2025
+  const TESA_START = new Date(2026, 3, 29); // Apr 29, 2026
+  const PHASE1_START = new Date(2026, 3, 29);
+  const PHASE1_END = new Date(2026, 6,  3); // Jul 3, 2026
+  const WEIGHT_KEY = 'rae-current-weight';
+
+  function daysSince(date) {
+    const today = new Date();
+    const diff = today - date;
+    return Math.max(0, Math.floor(diff / (1000 * 60 * 60 * 24)));
+  }
+
+  function calcBMI(weightLbs) {
+    return ((weightLbs / (HEIGHT_IN * HEIGHT_IN)) * 703).toFixed(1);
+  }
+
+  function getCurrentWeight() {
+    try {
+      const stored = localStorage.getItem(WEIGHT_KEY);
+      if (stored) return parseFloat(stored);
+    } catch (e) {}
+    const inp = document.getElementById('p-currentWeight');
+    return inp ? parseFloat(inp.value) : 184;
+  }
+
+  function updateProgress() {
+    const input = document.getElementById('p-currentWeight');
+    const current = parseFloat(input.value);
+    if (isNaN(current) || current < 80 || current > 400) return;
+
+    try { localStorage.setItem(WEIGHT_KEY, String(current)); } catch (e) {}
+
+    const lost = START_WEIGHT - current;
+    const toGo = current - GOAL_WEIGHT;
+    const totalJourney = START_WEIGHT - GOAL_WEIGHT;
+    const pct = Math.min(100, Math.max(0, (lost / totalJourney) * 100));
+
+    document.getElementById('p-progressFill').style.width = pct.toFixed(1) + '%';
+    document.getElementById('p-progressCurrentLabel').textContent = '▲ ' + current + ' lbs · Current';
+
+    document.getElementById('p-statLost').textContent = lost > 0 ? lost.toFixed(1) : '0';
+    document.getElementById('p-statToGo').textContent = toGo > 0 ? toGo.toFixed(1) : '0 🎯';
+    document.getElementById('p-statPct').textContent = pct.toFixed(0) + '%';
+    document.getElementById('p-statBmi').textContent = calcBMI(current);
+
+    document.getElementById('p-statTirzDays').textContent = daysSince(TIRZ_START);
+    document.getElementById('p-statTesaDays').textContent = daysSince(TESA_START);
+
+    const lostEl = document.getElementById('p-statLost');
+    lostEl.style.color = lost >= 50 ? 'var(--green)' : 'var(--gold-light)';
+
+    if (window.renderDashboard) window.renderDashboard();
+  }
+
+  // Restore weight from storage
+  try {
+    const stored = localStorage.getItem(WEIGHT_KEY);
+    if (stored) document.getElementById('p-currentWeight').value = stored;
+  } catch (e) {}
+
+  document.getElementById('p-update-btn').addEventListener('click', updateProgress);
+  document.getElementById('p-currentWeight').addEventListener('input', updateProgress);
+  document.getElementById('p-currentWeight').addEventListener('change', updateProgress);
+
+  function updateNowBadge() {
+    const dosesEl = document.getElementById('p-badge-doses');
+    const daysEl  = document.getElementById('p-badge-days');
+    const weekEl  = document.getElementById('p-badge-week');
+    if (!dosesEl || !daysEl || !weekEl) return;
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const TESA_START  = new Date(2026, 3, 29);
+    const TESA_END    = new Date(2026, 6,  3); // Jul 3
+    const WASHOUT_END = new Date(2026, 6, 12); // Jul 12
+    const CJC_START   = new Date(2026, 6, 13); // Jul 13 (Mon)
+    const CJC_END     = new Date(2026, 9, 11); // Oct 11
+
+    function countWeekdays(from, to) {
+      let n = 0; const c = new Date(from);
+      while (c <= to) { const d = c.getDay(); if (d >= 1 && d <= 5) n++; c.setDate(c.getDate() + 1); }
+      return n;
+    }
+    function calDays(from, to) {
+      return Math.floor((to - from) / (1000 * 60 * 60 * 24)) + 1;
+    }
+    function weekNum(from, to) {
+      // Rolling 7-day weeks anchored to start date (Wed-to-Wed)
+      const daysSince = Math.floor((to - from) / (1000 * 60 * 60 * 24));
+      return Math.floor(daysSince / 7) + 1;
+    }
+
+    let compound, start;
+    if (today <= TESA_END) {
+      compound = 'Tesa'; start = TESA_START;
+    } else if (today <= WASHOUT_END) {
+      dosesEl.textContent = countWeekdays(TESA_START, TESA_END);
+      daysEl.textContent  = calDays(TESA_START, TESA_END);
+      weekEl.textContent  = 'washout';
+      // Update label
+      const lbl = document.querySelector('#p-now-badge .now-label');
+      if (lbl) lbl.textContent = 'Washout Week';
+      return;
+    } else if (today <= CJC_END) {
+      compound = 'CJC/Ipa'; start = CJC_START;
+    } else {
+      compound = 'Maintenance'; start = CJC_END;
+    }
+
+    dosesEl.textContent = countWeekdays(start, today);
+    daysEl.textContent  = calDays(start, today);
+    weekEl.textContent  = 'Wk ' + weekNum(start, today);
+
+    // Update compound label in badge
+    const lbl = document.querySelector('#p-now-badge .now-label');
+    if (lbl) lbl.textContent = 'Protocol Active · ' + compound;
+  }
+
+  // Initial render
+  updateProgress();
+  updateNowBadge();
+
+  return {
+    START_WEIGHT, GOAL_WEIGHT, TIRZ_START, TESA_START,
+    PHASE1_START, PHASE1_END,
+    daysSince, calcBMI, getCurrentWeight
+  };
+})();
+
+/* ═══════════════════════════════════════════════════════
+   DASHBOARD RENDERING
+   ═══════════════════════════════════════════════════════ */
+async function renderDashboard() {
+  // Make sure stack DB is loaded before reading state
+  await StackApp.ready;
+
+  const now = new Date();
+  const dayNames = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('home-date').textContent =
+    `${dayNames[now.getDay()]} · ${monthNames[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+
+  // ── DAYS TO RACE (Hyrox countdown) ──
+  (function() {
+    const RACE_DATE = new Date(2026, 10, 22); // Nov 22, 2026
+    const daysOut = Math.max(0, Math.ceil((RACE_DATE - now)/(24*3600*1000)));
+    const el = document.getElementById('dash-habits-score');
+    if (el) el.textContent = daysOut;
+  })();
+
+  // ── STACK section ──
+  const stackToday = new Date();
+  const stackT = new Date(stackToday.getFullYear(), stackToday.getMonth(), stackToday.getDate());
+  const stackKey = StackApp.dateKey(stackT);
+  const todaySched = StackApp.getDay(stackT);
+  const cycInfo = StackApp.cycleLabel(stackT);
+  const stackContent = document.getElementById('dash-stack-content');
+  const stackMeta = document.getElementById('dash-stack-meta');
+  const stackScore = document.getElementById('dash-stack-score');
+  stackContent.innerHTML = '';
+
+  // Show cycle-aware label on home card
+  stackMeta.textContent = cycInfo.text;
+
+  const compounds = todaySched.compounds;
+  const isDone = StackApp.isDone(stackKey);
+
+  if (compounds.length === 0) {
+    stackScore.textContent = '0';
+    const phase = StackApp.phaseFor(stackT);
+    const msg = phase === 'WASHOUT'
+      ? '<div class="tc-shot-empty"><span class="em">🌀</span>Washout day · no injections</div>'
+      : '<div class="tc-shot-empty"><span class="em">🌿</span>Rest day · no injections scheduled</div>';
+    stackContent.innerHTML = msg;
+  } else {
+    stackScore.textContent = isDone ? `${compounds.length}/${compounds.length}` : `0/${compounds.length}`;
+    const grid = document.createElement('div');
+    grid.className = 'tc-shot-grid';
+
+    compounds.forEach(c => {
+      let dose;
+      if (c.id === 'TESA') dose = (c.dose ? c.dose + 'mg' : '1mg');
+      else if (c.id === 'TIRZ') dose = '5mg';
+      else if (c.id === 'CJC')  dose = (c.dose ? (c.dose === 0.2 ? '4 units · 0.2mg' : '6 units · 0.3mg') : '6 units · 0.3mg');
+      else dose = '0.5mL';
+      const name = c.id === 'TIRZ' ? 'Tirzepatide'
+                 : c.id === 'TESA' ? 'Tesamorelin'
+                 : c.id === 'CJC'  ? 'CJC-1295/Ipa'
+                 : 'BioBoost+';
+      const pillLabel = c.id === 'LIPO' ? 'BioB+' : c.id === 'CJC' ? 'CJC/IPA' : c.id;
+      const row = document.createElement('div');
+      row.className = 'tc-shot-row';
+      row.innerHTML = `
+        <div class="tc-shot-pill ${c.id.toLowerCase()}">${pillLabel}</div>
+        <div class="tc-shot-info">
+          <div class="tc-shot-name">${name}</div>
+          <div class="tc-shot-dose">${dose} · site ${c.site}</div>
+        </div>
+        <div class="tc-shot-site">${c.site}</div>
+      `;
+      grid.appendChild(row);
+    });
+
+    const toggleRow = document.createElement('div');
+    toggleRow.style.cssText = 'display:flex; justify-content:flex-end; margin-top:10px;';
+    const toggleBtn = document.createElement('button');
+    toggleBtn.className = 'tc-shot-toggle' + (isDone ? ' done' : '');
+    toggleBtn.textContent = isDone ? '✓ marked done' : 'Mark all done';
+    toggleBtn.addEventListener('click', async () => {
+      await StackApp.toggle(stackKey);
+    });
+    toggleRow.appendChild(toggleBtn);
+
+    stackContent.appendChild(grid);
+    stackContent.appendChild(toggleRow);
+  }
+
+  // ── PROTOCOL section ──
+  const phaseStart = ProtocolApp.PHASE1_START;
+  const phaseEnd = ProtocolApp.PHASE1_END;
+  // Normalize both ends to midnight for calendar-day counting (matches Stack page)
+  const _ps = new Date(phaseStart.getFullYear(), phaseStart.getMonth(), phaseStart.getDate());
+  const _pe = new Date(phaseEnd.getFullYear(), phaseEnd.getMonth(), phaseEnd.getDate());
+  const _today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const totalPhaseDays = Math.round((_pe - _ps) / 86400000) + 1; // inclusive
+  const phaseDayNum = Math.max(1, Math.round((_today - _ps) / 86400000) + 1);
+  const phaseDaysClamped = Math.max(0, Math.min(totalPhaseDays, phaseDayNum));
+  const phasePct = (phaseDaysClamped / totalPhaseDays) * 100;
+
+  document.getElementById('dash-phase-name').textContent = 'Phase 1 · Visceral Assault';
+  document.getElementById('dash-phase-meta').textContent =
+    `Day ${phaseDayNum} of ${totalPhaseDays} · Tesa cycle`;
+  document.getElementById('dash-phase-fill').style.width = Math.min(100, phasePct) + '%';
+  document.getElementById('dash-phase-day').textContent = phaseDayNum;
+
+  // Today's protocol reminders (context-aware)
+  const remindersEl = document.getElementById('dash-protocol-reminders');
+  remindersEl.innerHTML = '';
+
+  const reminders = [];
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // Mag glycinate + GHK-Cu start May 4, 2026
+  const magStart = new Date(2026, 4, 4);
+  const ghkStart = new Date(2026, 4, 4);
+  const isMagStartDay = today.getTime() === magStart.getTime();
+  const isGhkStartDay = today.getTime() === ghkStart.getTime();
+
+  if (today >= magStart) {
+    reminders.push({
+      icon: '💊',
+      name: 'Mag Glycinate + D3 + K2' + (isMagStartDay ? '<span class="tc-reminder-tag">starts today</span>' : ''),
+      detail: '500mg + 2000IU + 100mcg · 30–60 min before bed',
+      isNew: isMagStartDay
+    });
+  }
+  if (today >= ghkStart) {
+    reminders.push({
+      icon: '✨',
+      name: 'GHK-Cu Topical' + (isGhkStartDay ? '<span class="tc-reminder-tag">starts today</span>' : ''),
+      detail: 'The Ordinary serum · skin elasticity + collagen support',
+      isNew: isGhkStartDay
+    });
+  }
+  reminders.push({
+    icon: '💪',
+    name: 'Creatine 5g',
+    detail: 'Daily · strength + muscle volumization'
+  });
+
+  // Collagen Peptides: M/W/F only, 30 min before run (tendon/ligament support)
+  const runDow = now.getDay(); // 0=Sun, 1=Mon...
+  const isRunDay = (runDow === 1 || runDow === 3 || runDow === 5);
+  if (isRunDay) {
+    reminders.push({
+      icon: '🥄',
+      name: 'Collagen Peptides',
+      detail: '1 scoop (10g) + Vitamin C · 30 min pre-run · tendon/ligament support'
+    });
+  }
+  // Tesa titration dose lookup (mirrors StackApp logic)
+  const tesaTitration = [
+    { from: new Date(2026, 3, 29), to: new Date(2026, 4, 10), dose: 0.75, label: 'Wk 1–2' },
+    { from: new Date(2026, 4, 11), to: new Date(2026, 6,  3), dose: 1.0,  label: 'Wk 3–9' },
+  ];
+  const tesaEnd  = new Date(2026, 6,  3); // Jul 3 (last Tesa dose)
+  const cjcStart = new Date(2026, 6, 13); // Jul 13 Mon
+  const cjcTitrEnd = new Date(2026, 6, 24); // Jul 24 Fri (last 4-unit day)
+  const tesaWashoutEnd = new Date(2026, 6, 12); // Jul 12
+  const dow = now.getDay();
+  if (today > tesaEnd && today <= tesaWashoutEnd) {
+    reminders.push({
+      icon: '⏸️',
+      name: 'Tesa washout',
+      detail: 'Jul 4 – Jul 12 · no peptides · CJC/Ipa starts Jul 13 (Mon)'
+    });
+  } else if (dow >= 1 && dow <= 5) {
+    if (today >= cjcStart) {
+      const cjcLabel = today <= cjcTitrEnd ? '4 units · 0.2mg (Wk 1–2)' : '6 units · 0.3mg (Wk 3–12)';
+      reminders.push({
+        icon: '🌙',
+        name: 'CJC-1295 / Ipamorelin · fasted',
+        detail: `${cjcLabel} · M–F · 2–3 hr post last meal`
+      });
+    } else if (today <= tesaEnd) {
+      const tesaEntry = tesaTitration.find(t => today >= t.from && today <= t.to);
+      const tesaDoseLabel = tesaEntry ? tesaEntry.dose + 'mg (' + tesaEntry.label + ')' : '1mg';
+      reminders.push({
+        icon: '🌙',
+        name: 'Tesa nightly · fasted',
+        detail: `${tesaDoseLabel} · inject 2–3 hr post last meal · pairs with magnesium`
+      });
+    }
+  }
+  reminders.push({
+    icon: '🥩',
+    name: 'Protein 120–150g',
+    detail: 'Non-negotiable · muscle retention during fat loss'
+  });
+
+  reminders.forEach(r => {
+    const el = document.createElement('div');
+    el.className = 'tc-reminder ' + (r.isNew ? 'new' : 'routine');
+    el.innerHTML = `
+      <div class="tc-reminder-icon">${r.icon}</div>
+      <div class="tc-reminder-body">
+        <div class="tc-reminder-name">${r.name}</div>
+        <div class="tc-reminder-detail">${r.detail}</div>
+      </div>
+    `;
+    remindersEl.appendChild(el);
+  });
+}
+
+window.renderDashboard = renderDashboard;
+renderDashboard();
+
+/* ═══════════════════════════════════════════════════════
+   TIRZ ROADMAP APP
+   ═══════════════════════════════════════════════════════ */
+const TirzApp = (function () {
+  const WW_START = 240;
+  const TIRZ_START = 229;
+  const GOAL = 150;
+  const TOTAL_JOURNEY = WW_START - GOAL; // 90
+  const WW_LOSS = WW_START - TIRZ_START; // 11
+  const SK = 'rae-tirz-weight';
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function addMonths(date, months) {
+    const d = new Date(date);
+    d.setDate(1);
+    d.setMonth(d.getMonth() + Math.round(months));
+    return MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  function flash(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('t-flash');
+    void el.offsetWidth;
+    el.classList.add('t-flash');
+  }
+
+  function update() {
+    const raw = document.getElementById('t-weightInput').value;
+    const input = parseFloat(raw);
+    if (isNaN(input) || input < 100 || input > 300) return;
+
+    // Persist weight
+    try { localStorage.setItem(SK, input); } catch(e) {}
+    // Also sync to protocol app's weight key so the weight tracker stays consistent
+    try { localStorage.setItem('rae-current-weight', input); } catch(e) {}
+
+    const today = new Date();
+    const tirzLoss = Math.round((TIRZ_START - input) * 10) / 10;
+    const remaining = Math.round((input - GOAL) * 10) / 10;
+
+    const wwPct = (WW_LOSS / TOTAL_JOURNEY) * 100;
+    const tirzPct = (tirzLoss / TOTAL_JOURNEY) * 100;
+    const remainingPct = (remaining / TOTAL_JOURNEY) * 100;
+    const tirzLeft = wwPct;
+    const remainingLeft = wwPct + tirzPct;
+
+    const weeksMin = remaining / 1.4;
+    const weeksMax = remaining / 0.8;
+    const monthsMin = weeksMin / 4.33;
+    const monthsMax = weeksMax / 4.33;
+    const arrivalEarly = addMonths(today, monthsMin);
+    const arrivalLate = addMonths(today, monthsMax);
+
+    document.getElementById('t-statToday').innerHTML = input + '<span style="font-size:0.7rem">lb</span>';
+    document.getElementById('t-statTirzLoss').textContent = '-' + tirzLoss + ' lb on tirz';
+    document.getElementById('t-statToGo').textContent = remaining + ' to go';
+    document.getElementById('t-barTirz').style.left = tirzLeft.toFixed(1) + '%';
+    document.getElementById('t-barTirz').style.width = tirzPct.toFixed(1) + '%';
+    document.getElementById('t-barRemaining').style.left = remainingLeft.toFixed(1) + '%';
+    document.getElementById('t-barRemaining').style.width = remainingPct.toFixed(1) + '%';
+    document.getElementById('t-barLabelNow').textContent = input + ' (now)';
+    document.getElementById('t-legendTirz').textContent = 'Tirz loss (' + tirzLoss + ' lb)';
+    document.getElementById('t-legendRemaining').textContent = 'Remaining (' + remaining + ' lb)';
+    document.getElementById('t-phaseCurrentWeight').textContent = input + ' lb';
+    document.getElementById('t-phaseToLose').textContent = remaining + ' lb';
+    document.getElementById('t-phaseDuration').textContent =
+      Math.round(monthsMin) + '\u2013' + Math.round(monthsMax) + ' months';
+    document.getElementById('t-phaseArrival').textContent =
+      arrivalEarly + '\u2013' + arrivalLate;
+
+    ['t-statToday','t-statTirzLoss','t-statToGo','t-barLabelNow','t-legendTirz',
+     't-legendRemaining','t-phaseCurrentWeight','t-phaseToLose','t-phaseDuration','t-phaseArrival']
+      .forEach(flash);
+  }
+
+  // Init: load saved weight
+  (function init() {
+    let saved = null;
+    try { saved = localStorage.getItem(SK) || localStorage.getItem('rae-current-weight'); } catch(e) {}
+    if (saved) {
+      const v = parseFloat(saved);
+      if (!isNaN(v) && v >= 100 && v <= 300) {
+        document.getElementById('t-weightInput').value = v;
+        update();
+      }
+    }
+
+    document.getElementById('t-weightInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') update();
+    });
+  })();
+
+  return { update };
+})();
+
+
+</script>
+</body>
+</html>
